@@ -5,3 +5,5 @@
 *.war
 *.ear
 /twitter-data-access/target/
+/twitter-liquibase/target/
+/twitter-liquibase/nbactions-twitter-liquibase-generate-changelog.xml

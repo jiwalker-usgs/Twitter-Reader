@@ -1,8 +1,7 @@
 package gov.usgs.cida.twitter.reader.data.observer.impl;
 
 import com.google.common.eventbus.Subscribe;
-import gov.usgs.cida.twitter.reader.data.access.CIDATwitterClient;
-import gov.usgs.cida.twitter.reader.data.observer.interfaces.MessageObserver;
+import gov.usgs.cida.twitter.reader.data.access.TwitterClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author isuftin
  */
-public class LoggingMessageObserver implements MessageObserver {
+public class LoggingMessageObserver extends MessageObserver {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(LoggingMessageObserver.class);
     
@@ -20,7 +19,7 @@ public class LoggingMessageObserver implements MessageObserver {
      */
     @Override
     public void register() {
-        CIDATwitterClient.getEventBus().register(this);
+        TwitterClient.getEventBus().register(this);
         LOGGER.info("LoggingMessageObserver registered");
     }
     
@@ -29,7 +28,7 @@ public class LoggingMessageObserver implements MessageObserver {
      */
     @Override
     public void unregister() {
-        CIDATwitterClient.getEventBus().unregister(this);
+        TwitterClient.getEventBus().unregister(this);
         LOGGER.info("LoggingMessageObserver unregistered");
     }
     
@@ -40,7 +39,7 @@ public class LoggingMessageObserver implements MessageObserver {
      */
     @Subscribe
     @Override
-    public void handleIncomingMessage(String message) {
+    public void handleEvent(String message) {
         LOGGER.info("Incoming Message: " + message);
     }
     

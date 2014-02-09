@@ -91,7 +91,8 @@
   
     <modules>
         <module>twitter-data-access</module>
-    </modules>
+    <module>twitter-liquibase</module>
+  </modules>
   
     <dependencyManagement>
         <dependencies>
@@ -120,7 +121,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.10</version>
+                <version>4.11</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

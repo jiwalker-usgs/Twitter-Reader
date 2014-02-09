@@ -1,4 +1,4 @@
-package gov.usgs.cida.twitter.reader.data.observer.interfaces;
+package gov.usgs.cida.twitter.reader.data.observer.impl;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -7,7 +7,7 @@ import com.google.common.eventbus.Subscribe;
  *
  * @author isuftin
  */
-public interface MessageObserver {
+public abstract class MessageObserver {
 
     /**
      * Handles a new incoming message
@@ -15,16 +15,16 @@ public interface MessageObserver {
      * @param message
      */
     @Subscribe
-    public void handleIncomingMessage(String message);
+    public abstract void handleEvent(String message);
 
     /**
      * Register this object to the event bus
      */
-    public void register();
+    public abstract void register();
 
     /**
      * Unregister this object from the event bus
      */
-    public void unregister();
+    public abstract void unregister();
 
 }

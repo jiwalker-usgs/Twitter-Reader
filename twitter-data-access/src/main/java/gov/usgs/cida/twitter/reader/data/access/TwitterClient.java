@@ -24,35 +24,37 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A client to asynchronously pull messages from CIDA's Twitter queue
- * 
+ *
  * @author isuftin
  */
-public class CIDATwitterClient extends Observable {
+public class TwitterClient extends Observable {
+
     private static Client client = null;
     private static Boolean isConnected = false;
     private static BlockingQueue<String> messageQueue = null;
     private static BlockingQueue<Event> eventQueue = null;
     private static EventBus eventBus;
-    private final static Logger LOGGER = LoggerFactory.getLogger(CIDATwitterClient.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(TwitterClient.class);
     private final static ScheduledExecutorService eventSes = Executors.newScheduledThreadPool(1);
     private final static ScheduledExecutorService messageSes = Executors.newScheduledThreadPool(1);
-    private final static ScheduledFuture<CIDATwitterEventRunner> eventFuture = null;
-    private final static ScheduledFuture<CIDATwitterMessageRunner> messageFuture = null;
+    private final static ScheduledFuture<TwitterEventRunner> eventFuture = null;
+    private final static ScheduledFuture<TwitterMessageRunner> messageFuture = null;
     private List<Long> userIds = null;
     private List<String> terms = null;
     private List<Location> locations = null;
-    
+
     /**
-     * Thread runnable object that checks the message queue and posts new messages
-     * to observers
+     * Thread runnable object that checks the message queue and posts new
+     * messages to observers
      */
-    private static class CIDATwitterMessageRunner implements Runnable {
-        private final static Logger RUNNER_LOGGER = LoggerFactory.getLogger(CIDATwitterMessageRunner.class);
+    private static class TwitterMessageRunner implements Runnable {
+
+        private final static Logger RUNNER_LOGGER = LoggerFactory.getLogger(TwitterMessageRunner.class);
+
         @Override
         public void run() {
-            getEventBus().post("TEST");
             if (isConnected) {
-                RUNNER_LOGGER.debug("CIDATwitterMessageRunner checking queue");
+                RUNNER_LOGGER.debug("TwitterMessageRunner checking queue");
                 while (!messageQueue.isEmpty()) {
                     try {
                         String message = messageQueue.take();
@@ -61,21 +63,23 @@ public class CIDATwitterClient extends Observable {
                         RUNNER_LOGGER.warn("Message queue thread interrupted: " + ex);
                     }
                 }
-                RUNNER_LOGGER.debug("CIDATwitterMessageRunner done checking queue");
+                RUNNER_LOGGER.debug("TwitterMessageRunner done checking queue");
             }
         }
     }
-    
+
     /**
      * Thread runnable object that checks the event queue and posts new events
      * to observers
      */
-    private static class CIDATwitterEventRunner implements Runnable {
-        private final static Logger RUNNER_LOGGER = LoggerFactory.getLogger(CIDATwitterEventRunner.class);
+    private static class TwitterEventRunner implements Runnable {
+
+        private final static Logger RUNNER_LOGGER = LoggerFactory.getLogger(TwitterEventRunner.class);
+
         @Override
         public void run() {
             if (isConnected) {
-                RUNNER_LOGGER.debug("CIDATwitterEventRunner checking queue");
+                RUNNER_LOGGER.debug("TwitterEventRunner checking queue");
                 while (!eventQueue.isEmpty()) {
                     try {
                         Event event = eventQueue.take();
@@ -84,13 +88,14 @@ public class CIDATwitterClient extends Observable {
                         RUNNER_LOGGER.warn("Event queue thread interrupted: " + ex);
                     }
                 }
-                RUNNER_LOGGER.debug("CIDATwitterEventRunner done checking queue");
+                RUNNER_LOGGER.debug("TwitterEventRunner done checking queue");
             }
         }
     }
-    
+
     /**
      * Create a Twitter client using OAuth
+     *
      * @param consumerKey Twitter API key
      * @param consumerSecret Twitter API secret
      * @param token Twitter Access token
@@ -99,7 +104,7 @@ public class CIDATwitterClient extends Observable {
      * @param terms List of terms IDs to track
      * @param locations List of locations IDs to track
      */
-    public CIDATwitterClient(String consumerKey, String consumerSecret, String token, String secret, List<Long> userIds, List<String> terms, List<Location> locations) {
+    public TwitterClient(String consumerKey, String consumerSecret, String token, String secret, List<Long> userIds, List<String> terms, List<Location> locations) {
         if (client == null) {
             client = this.buildClient(new OAuth1(consumerKey, consumerSecret, token, secret));
             this.userIds = userIds;
@@ -108,17 +113,18 @@ public class CIDATwitterClient extends Observable {
             LOGGER.debug("New Twitter client created");
         }
     }
-    
+
     /**
-     * Create a Twitter client using basic login (using this method is discouraged
-     * in favor of OAuth)
+     * Create a Twitter client using basic login (using this method is
+     * discouraged in favor of OAuth)
+     *
      * @param username Twitter user name
      * @param password Twitter password
      * @param userIds List of user IDs to track
      * @param terms List of terms IDs to track
      * @param locations List of locations IDs to track
      */
-    public CIDATwitterClient(String username, String password, List<Long> userIds, List<String> terms, List<Location> locations) {
+    public TwitterClient(String username, String password, List<Long> userIds, List<String> terms, List<Location> locations) {
         if (client == null) {
             client = this.buildClient(new BasicAuth(username, password));
             this.userIds = userIds;
@@ -127,7 +133,7 @@ public class CIDATwitterClient extends Observable {
             LOGGER.debug("New Twitter client created");
         }
     }
-    
+
     /**
      * Connects the Twitter client to Twitter
      */
@@ -138,38 +144,62 @@ public class CIDATwitterClient extends Observable {
             LOGGER.info("Twitter client connecting...");
         }
     }
-    
+
     /**
-     * Starts the message queuing for the Twitter client
+     * Starts message queuing for the Twitter client using default start time
+     * and run time
      */
     public void startMessageQueueing() {
+        this.startMessageQueueing(0l, 1l, TimeUnit.MINUTES);
+    }
+
+    /**
+     * Starts message queuing for the Twitter client
+     *
+     * @param initialDelay the time to delay first execution
+     * @param period the period between successive executions
+     * @param timeUnit the time unit of the initialDelay and period parameters
+     */
+    public void startMessageQueueing(Long initialDelay, Long period, TimeUnit timeUnit) {
         if (null == messageFuture || messageFuture.isDone() || messageFuture.isCancelled()) {
-            messageSes.scheduleAtFixedRate(new CIDATwitterMessageRunner(), 0, 1, TimeUnit.MINUTES);
+            messageSes.scheduleAtFixedRate(new TwitterMessageRunner(), initialDelay, period, timeUnit);
             LOGGER.info("Message queueing started");
         }
     }
-    
+
     /**
      * Stops the message queuing for the Twitter client
      */
     public void stopMessageQueueing() {
         if (null != messageFuture && !messageFuture.isDone() && !messageFuture.isCancelled()) {
-           messageFuture.cancel(false);
-           LOGGER.info("Message queueing stopped");
+            messageFuture.cancel(false);
+            LOGGER.info("Message queueing stopped");
         }
     }
-    
+
     /**
-     * Starts the event queuing for the Twitter client
+     * Starts the event queuing for the Twitter client using default start time
+     * and run time
      */
     public void startEventQueueing() {
+        startEventQueueing(0l, 1l, TimeUnit.MINUTES);
+    }
+
+    /**
+     * Starts event queuing for the Twitter client
+     *
+     * @param initialDelay the time to delay first execution
+     * @param period the period between successive executions
+     * @param timeUnit the time unit of the initialDelay and period parameters
+     */
+    public void startEventQueueing(Long initialDelay, Long period, TimeUnit timeUnit) {
         if (null == eventFuture || eventFuture.isDone() || eventFuture.isCancelled()) {
-            eventSes.scheduleAtFixedRate(new CIDATwitterEventRunner(), 0, 1, TimeUnit.MINUTES);
+            eventSes.scheduleAtFixedRate(new TwitterEventRunner(), initialDelay, period, timeUnit);
             LOGGER.info("Event queueing started");
         }
     }
-    
-    /** 
+
+    /**
      * Stops the event queuing for the Twitter client
      */
     public void stopEventQueueing() {
@@ -189,26 +219,26 @@ public class CIDATwitterClient extends Observable {
         }
         LOGGER.info("Twitter client stopped");
     }
-    
+
     private Client buildClient(Authentication auth) {
         messageQueue = new LinkedBlockingQueue<>(100000);
         eventQueue = new LinkedBlockingQueue<>(1000);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-        
+
         if (this.userIds != null) {
             endpoint.followings(this.userIds);
         }
-        
+
         if (this.terms != null) {
             endpoint.trackTerms(this.terms);
         }
-        
+
         if (this.locations != null) {
             endpoint.locations(this.locations);
         }
-        
+
         ClientBuilder cb = new ClientBuilder().
-                name("CIDA-Twitter-Client").
+                name("Twitter-Client").
                 hosts(Constants.SITESTREAM_HOST).
                 authentication(auth).
                 endpoint(endpoint).
@@ -217,9 +247,10 @@ public class CIDATwitterClient extends Observable {
 
         return cb.build();
     }
-    
+
     /**
      * During finalize, shuts down the Twitter client
+     *
      * @throws Throwable
      */
     @Override
@@ -235,7 +266,8 @@ public class CIDATwitterClient extends Observable {
 
     /**
      * Gets the singleton event bus to subscribe to
-     * @return 
+     *
+     * @return
      */
     public static EventBus getEventBus() {
         if (eventBus == null) {

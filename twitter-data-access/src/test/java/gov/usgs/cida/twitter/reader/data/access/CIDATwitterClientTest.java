@@ -1,7 +1,9 @@
 package gov.usgs.cida.twitter.reader.data.access;
 
+import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.twitter.hbc.core.endpoint.Location;
+import gov.usgs.cida.twitter.reader.data.observer.impl.LoggingEventObserver;
 import gov.usgs.cida.twitter.reader.data.observer.impl.LoggingMessageObserver;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +17,11 @@ public class CIDATwitterClientTest {
 
     private static String user = "";
     private static String pass = "";
-    private static String consumerKey = "";
-    private static String consumerSecret = "";
-    private static String token = "";
-    private static String secret = "";
-    private static List<Long> userIds = null;
+    private static String consumerKey = "test";
+    private static String consumerSecret = "test";
+    private static String token = "test";
+    private static String secret = "test";
+    private static List<Long> userIds = Lists.newArrayList(467664169l);
     private static List<String> terms = null;
     private static List<Location> locations = null;
 
@@ -42,15 +44,15 @@ public class CIDATwitterClientTest {
     @org.junit.Test
     public void testClientCreationUsingUsernameAndPass() {
         System.out.println("testClientCreation");
-        CIDATwitterClient test = new CIDATwitterClient(user, pass, userIds, terms, locations);
+        TwitterClient test = new TwitterClient(user, pass, userIds, terms, locations);
         assertNotNull(test);
     }
 
     @org.junit.Test
     public void testGetValidEventBus() {
         System.out.println("testGetValidEventBus");
-        CIDATwitterClient client = new CIDATwitterClient(user, pass, userIds, terms, locations);
-        EventBus test = CIDATwitterClient.getEventBus();
+        TwitterClient client = new TwitterClient(user, pass, userIds, terms, locations);
+        EventBus test = TwitterClient.getEventBus();
         assertNotNull(test);
     }
 
@@ -58,7 +60,7 @@ public class CIDATwitterClientTest {
     @org.junit.Ignore
     public void testTryConnectionWithNormalAuth() {
         System.out.println("testTryConnectionWithNormalAuth");
-        CIDATwitterClient client = new CIDATwitterClient(user, pass, userIds, terms, locations);
+        TwitterClient client = new TwitterClient(user, pass, userIds, terms, locations);
         client.connect();
         client.stop(0);
         assertTrue(true);
@@ -68,7 +70,7 @@ public class CIDATwitterClientTest {
     @org.junit.Ignore
     public void testTryConnectionWithOAuth() {
         System.out.println("testTryConnectionWithOAuth");
-        CIDATwitterClient client = new CIDATwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
+        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
         client.connect();
         client.stop(0);
         assertTrue(true);
@@ -76,14 +78,33 @@ public class CIDATwitterClientTest {
 
     @org.junit.Test
     @org.junit.Ignore
-    public void testTryCreatingLogger() throws InterruptedException {
-        System.out.println("testTryConnectionWithOAuth");
-        CIDATwitterClient client = new CIDATwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
+    public void testTryCreatingMessageLogger() throws InterruptedException {
+        System.out.println("testTryCreatingMessageLogger");
+        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
         client.connect();
         LoggingMessageObserver lmo = new LoggingMessageObserver();
         lmo.register();
         client.startMessageQueueing();
-        synchronized(this) {
+        synchronized (this) {
+            wait(30000l);
+        }
+        client.stop(0);
+        assertTrue(true);
+    }
+
+    @org.junit.Test
+    @org.junit.Ignore
+    public void testTryCreatingEventLogger() throws InterruptedException {
+        System.out.println("testTryCreatingMessageLogger");
+        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
+        
+        LoggingEventObserver leo = new LoggingEventObserver();
+        leo.register();
+        client.startEventQueueing();
+        
+        client.connect();
+        
+        synchronized (this) {
             wait(30000l);
         }
         client.stop(0);
