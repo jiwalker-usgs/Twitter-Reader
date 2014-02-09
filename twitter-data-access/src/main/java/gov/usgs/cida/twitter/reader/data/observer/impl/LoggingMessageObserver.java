@@ -21,6 +21,7 @@ public class LoggingMessageObserver implements MessageObserver {
     @Override
     public void register() {
         CIDATwitterClient.getEventBus().register(this);
+        LOGGER.info("LoggingMessageObserver registered");
     }
     
     /**
@@ -29,6 +30,7 @@ public class LoggingMessageObserver implements MessageObserver {
     @Override
     public void unregister() {
         CIDATwitterClient.getEventBus().unregister(this);
+        LOGGER.info("LoggingMessageObserver unregistered");
     }
     
     /**
