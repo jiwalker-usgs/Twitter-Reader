@@ -1,5 +1,6 @@
 package gov.usgs.cida.twitter.reader.data.access;
 
+import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.twitter.hbc.core.endpoint.Location;

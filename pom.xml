@@ -91,8 +91,8 @@
   
     <modules>
         <module>twitter-data-access</module>
-    <module>twitter-liquibase</module>
-  </modules>
+        <module>twitter-network-access</module>
+    </modules>
   
     <dependencyManagement>
         <dependencies>

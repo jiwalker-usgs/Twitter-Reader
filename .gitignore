@@ -7,3 +7,6 @@
 /twitter-data-access/target/
 /twitter-liquibase/target/
 /twitter-liquibase/nbactions-twitter-liquibase-generate-changelog.xml
+/twitter-network-acess/target/
+/twitter-network-access/target/
+/twitter-data-access/nbactions-twitter-liquibase-generate-changelog.xml
