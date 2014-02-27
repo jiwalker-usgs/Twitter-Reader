@@ -2,7 +2,7 @@ package gov.usgs.cida.twitter.reader.data.observer.impl;
 
 import com.google.common.eventbus.Subscribe;
 import com.twitter.hbc.core.event.Event;
-import gov.usgs.cida.twitter.reader.data.access.TwitterClient;
+import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

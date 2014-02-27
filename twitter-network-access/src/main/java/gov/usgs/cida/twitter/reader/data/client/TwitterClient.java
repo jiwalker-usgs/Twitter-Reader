@@ -1,4 +1,4 @@
-package gov.usgs.cida.twitter.reader.data.access;
+package gov.usgs.cida.twitter.reader.data.client;
 
 import com.google.common.eventbus.EventBus;
 import com.twitter.hbc.ClientBuilder;
