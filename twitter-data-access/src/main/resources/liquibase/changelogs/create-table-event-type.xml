@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="create-table-event-type" author="Ivan Suftin"  context="update,integration-test">
+        <createTable tableName="EVENT_TYPE">
+            <column name="EVENT_TYPE_ID" type="java.sql.Types.TINYINT">
+                <constraints 
+                    nullable="false" 
+                    primaryKey="true" 
+                    primaryKeyName="pk_EVENT_TYPE_ID" 
+                />
+            </column>
+            <column name="EVENT_TYPE" type="java.sql.Types.VARCHAR(45)" />
+            <column name="EVENT_DESCRIPTION" type="java.sql.Types.VARCHAR(150)" />
+        </createTable>
+        <createIndex 
+            tableName="EVENT_TYPE" 
+            indexName="idx_EVENT_TYPE_ID" 
+            unique="true">
+            <column name="EVENT_TYPE_ID" type="java.sql.Types.TINYINT" />
+        </createIndex>
+        <rollback>
+            <dropTable 
+                tableName="EVENT_TYPE" 
+            />
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

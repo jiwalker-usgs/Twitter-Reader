@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="load-table-event-type" author="Ivan Suftin" context="update,integration-test">
+       <loadData 
+            tableName="EVENT_TYPE"
+            encoding="UTF-8"
+            file="src/main/resources/liquibase/changelogs/data/load-table-event-type.csv"
+            quotchar="&quot;" 
+            separator=",">
+            
+            <column name="EVENT_TYPE_ID" type="NUMERIC" />
+            <column name="EVENT_TYPE" type="STRING" />
+            <column name="EVENT_DESCRIPTION" type="STRING" />
+       </loadData>
+    </changeSet>
+</databaseChangeLog>

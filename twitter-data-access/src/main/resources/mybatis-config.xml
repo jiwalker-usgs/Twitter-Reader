@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE configuration
+  PUBLIC '-//mybatis.org//DTD Config 3.0//EN'
+  'http://mybatis.org/dtd/mybatis-3-config.dtd'>
+<configuration>
+    <typeAliases>
+        <typeAlias type='gov.usgs.cida.twitter.data.model.EventType' alias='EventType'></typeAlias>
+    </typeAliases>
+    <environments default='container'>
+        <environment id='container'>
+            <transactionManager type="JDBC"/>
+            <dataSource type="JNDI">
+                <property name="data_source" value="java:comp/env/jdbc/TwitterClientDS"/>
+            </dataSource>
+        </environment>
+        <environment id='standalone'>
+            <transactionManager type="JDBC"/>
+            <dataSource type='POOLED'>    
+                <property name='driver' value='oracle.jdbc.OracleDriver'/>
+                <property name='url' value='${db.twitter.development.url}'/>
+                <property name='username' value='${db.twitter.development.username}'/>
+                <property name='password' value='${db.twitter.development.password}'/>
+            </dataSource>
+        </environment>
+        <environment id='integration-test'>
+            <transactionManager type="JDBC"/>
+            <dataSource type='POOLED'>    
+                <property name='driver' value='org.h2.Driver'/>
+                <property name='url' value='jdbc:h2:mem:twitter;DB_CLOSE_DELAY=-1'/>
+                <property name='username' value='test'/>
+                <property name='password' value='test'/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource='gov/usgs/cida/mybatis/mappers/EventTypeMapper.xml' />
+    </mappers>
+</configuration>
