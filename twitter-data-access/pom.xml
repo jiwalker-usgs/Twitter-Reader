@@ -7,20 +7,51 @@
         <artifactId>twitter-reader</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+    
     <artifactId>twitter-data-access</artifactId>
+    
     <name>Twitter Data Access</name>
+    
     <packaging>jar</packaging>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <liquibase.version>3.1.1</liquibase.version>
+        <surefire.version>2.16</surefire.version>
+        <db.twitter.integration-test.schema>twitter</db.twitter.integration-test.schema>
+        <db.twitter.integration-test.driver>org.apache.derby.jdbc.ClientDriver</db.twitter.integration-test.driver>
+        <db.twitter.integration-test.dbtype>derby</db.twitter.integration-test.dbtype>
     </properties>
     
     <dependencies>
+        <!-- Logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <artifactId>slf4j-api</artifactId>
+            <groupId>org.slf4j</groupId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+        </dependency>
+        
+        <!-- Database -->
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
             <version>${liquibase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.2.5</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -28,88 +59,219 @@
             <version>9.3-1101-jdbc41</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <version>10.10.1.1</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>13.0.1</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     
-    <profiles>
-        <profile>
-            <id>twitter-liquibase-generate-changelog</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>generateChangeLog</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.liquibase</groupId>
-                        <artifactId>liquibase-maven-plugin</artifactId>
-                        <version>${liquibase.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>generateChangeLog</goal>
-                                </goals>
-                                <configuration>
-                                    <outputChangeLogFile>src/main/liquibase/changeLog.xml</outputChangeLogFile>
-                                    <changeLogFile>src/main/liquibase/changeLog.xml</changeLogFile>
-                                    <dataDir>src/main/data</dataDir>
-                                    <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
-                                    <outputDefaultSchema>true</outputDefaultSchema>
-                                    <contexts>init,update,test</contexts>
-                                    <verbose>true</verbose>
-                                    <defaultCatalogName>twitter</defaultCatalogName>
-                                    <defaultSchemaName>twitter</defaultSchemaName>
-                                    <!--<changeSetContext>init</changeSetContext>-->
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>twitter-liquibase-generate-diff</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>generateDiff</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.liquibase</groupId>
-                        <artifactId>liquibase-maven-plugin</artifactId>
-                        <version>${liquibase.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>diff</goal>
-                                </goals>
-                                <configuration>
-                                    <changeLogFile>src/main/liquibase/changeLog.xml</changeLogFile>
-                                    <diffChangeLogFile>src/main/liquibase/changeLog.xml</diffChangeLogFile>
-                                    <defaultCatalogName>twitter</defaultCatalogName>
-                                    <defaultSchemaName>twitter</defaultSchemaName>
-                                    <referenceDefaultCatalogName>twitter</referenceDefaultCatalogName>
-                                    <referenceDefaultSchemaName>twitter</referenceDefaultSchemaName>
-                                    <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
-                                    <outputDefaultSchema>true</outputDefaultSchema>
-                                    <contexts>init,update,test</contexts>
-                                    <verbose>true</verbose>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>    
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>filter-resources</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Reserve a random port for the in-memory database -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>reserve-network-port</id>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <portNames>
+                                <portName>db.twitter.integration-test.monitor.port</portName>
+                                <portName>db.twitter.integration-test.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Spin up (and later tear down) the in-memory H2 database -->
+            <plugin>
+                <groupId>com.btmatthews.maven.plugins.inmemdb</groupId>
+                <artifactId>inmemdb-maven-plugin</artifactId>
+                <version>1.4.2</version>
+                <configuration>
+                    <monitorPort>${db.twitter.integration-test.monitor.port}</monitorPort>
+                    <monitorKey>inmemdb</monitorKey>
+                    <daemon>true</daemon>
+                    <port>${db.twitter.integration-test.port}</port>
+                    <type>${db.twitter.integration-test.dbtype}</type>
+                    <database>${db.twitter.integration-test.schema}</database>
+                    <username>test</username>
+                    <password>test</password>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-db</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-db</id>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Create the in-memory database layout in the integration-test phase -->
+            <!--            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase.version}</version>
+                <executions>
+                    <execution>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>update</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/liquibase/changelogs/create-table-parent-changeLog.xml
+                            </changeLogFile>
+                            <driver>${database.driver}</driver>
+                            <url>jdbc:h2:mem:${database.name};DB_CLOSE_DELAY=-1</url>
+                            <username>test</username>
+                            <password>test</password>
+                            <liquibase.logging>debug</liquibase.logging>
+                            <verbose>true</verbose>
+                            <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
+            
+            <!-- Make sure not to run the integration tests during the test phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>${surefire.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <includes>
+                        <include>**/*.class</include>
+                    </includes>
+                    <excludedGroups>gov.usgs.cida.twitter.data.dao.IntegrationTest</excludedGroups>
+                </configuration>
+            </plugin>
+            <!-- And DO run the integration tests during the test phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>${surefire.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <groups>gov.usgs.cida.twitter.data.dao.IntegrationTest</groups>
+                    <systemPropertyVariables>
+                        <db.twitter.integration-test.schema>twitter</db.twitter.integration-test.schema>
+                        <db.twitter.integration-test.dbtype>${db.twitter.integration-test.dbtype}</db.twitter.integration-test.dbtype>
+                        <db.twitter.integration-test.port>${db.twitter.integration-test.port}</db.twitter.integration-test.port>
+                        <db.twitter.integration-test.driver>${db.twitter.integration-test.driver}</db.twitter.integration-test.driver>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*.class</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Clean up after integration-testing database -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <executions>
+                    <execution>
+                        <id>cleanup</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                    <useDefaultExcludes>true</useDefaultExcludes>
+                                    <directory>twitter</directory>
+                                </fileset>
+                                <fileset>
+                                    <useDefaultExcludes>true</useDefaultExcludes>
+                                    <directory>${project.basedir}</directory>
+                                    <includes>
+                                        <include>**/derby.log</include>
+                                    </includes>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
+    
 </project>
