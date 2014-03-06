@@ -18,8 +18,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <liquibase.version>3.1.1</liquibase.version>
         <surefire.version>2.16</surefire.version>
-        <database.name>twitter</database.name>
-        <database.driver>org.h2.Driver</database.driver>
+        <db.twitter.integration-test.schema>twitter</db.twitter.integration-test.schema>
+        <db.twitter.integration-test.driver>org.apache.derby.jdbc.ClientDriver</db.twitter.integration-test.driver>
+        <db.twitter.integration-test.dbtype>derby</db.twitter.integration-test.dbtype>
     </properties>
     
     <dependencies>
@@ -58,10 +59,9 @@
             <version>9.3-1101-jdbc41</version>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.3.175</version>
-            <scope>test</scope>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <version>10.10.1.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -74,10 +74,37 @@
             <version>13.0.1</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>    
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>filter-resources</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             
             <!-- Reserve a random port for the in-memory database -->
             <plugin>
@@ -93,6 +120,7 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <portNames>
+                                <portName>db.twitter.integration-test.monitor.port</portName>
                                 <portName>db.twitter.integration-test.port</portName>
                             </portNames>
                         </configuration>
@@ -106,11 +134,12 @@
                 <artifactId>inmemdb-maven-plugin</artifactId>
                 <version>1.4.2</version>
                 <configuration>
-                    <monitorPort>${db.twitter.integration-test.port}</monitorPort>
+                    <monitorPort>${db.twitter.integration-test.monitor.port}</monitorPort>
                     <monitorKey>inmemdb</monitorKey>
                     <daemon>true</daemon>
-                    <type>h2</type>
-                    <database>${database.name}</database>
+                    <port>${db.twitter.integration-test.port}</port>
+                    <type>${db.twitter.integration-test.dbtype}</type>
+                    <database>${db.twitter.integration-test.schema}</database>
                     <username>test</username>
                     <password>test</password>
                 </configuration>
@@ -131,7 +160,7 @@
             </plugin>
             
             <!-- Create the in-memory database layout in the integration-test phase -->
-            <plugin>
+            <!--            <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>${liquibase.version}</version>
@@ -155,9 +184,9 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             
-             <!-- Make sure not to run the integration tests during the test phase -->
+            <!-- Make sure not to run the integration tests during the test phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -190,6 +219,12 @@
                 </dependencies>
                 <configuration>
                     <groups>gov.usgs.cida.twitter.data.dao.IntegrationTest</groups>
+                    <systemPropertyVariables>
+                        <db.twitter.integration-test.schema>twitter</db.twitter.integration-test.schema>
+                        <db.twitter.integration-test.dbtype>${db.twitter.integration-test.dbtype}</db.twitter.integration-test.dbtype>
+                        <db.twitter.integration-test.port>${db.twitter.integration-test.port}</db.twitter.integration-test.port>
+                        <db.twitter.integration-test.driver>${db.twitter.integration-test.driver}</db.twitter.integration-test.driver>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>
@@ -205,6 +240,36 @@
                 </executions>
             </plugin>
             
+            <!-- Clean up after integration-testing database -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <executions>
+                    <execution>
+                        <id>cleanup</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                    <useDefaultExcludes>true</useDefaultExcludes>
+                                    <directory>twitter</directory>
+                                </fileset>
+                                <fileset>
+                                    <useDefaultExcludes>true</useDefaultExcludes>
+                                    <directory>${project.basedir}</directory>
+                                    <includes>
+                                        <include>**/derby.log</include>
+                                    </includes>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     

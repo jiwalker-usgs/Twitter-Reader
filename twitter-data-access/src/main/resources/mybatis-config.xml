@@ -25,8 +25,8 @@
         <environment id='integration-test'>
             <transactionManager type="JDBC"/>
             <dataSource type='POOLED'>    
-                <property name='driver' value='org.h2.Driver'/>
-                <property name='url' value='jdbc:h2:mem:twitter;DB_CLOSE_DELAY=-1'/>
+                <property name='driver' value='${db.twitter.integration-test.driver}'/>
+                <property name='url' value='jdbc:${db.twitter.integration-test.dbtype}://localhost:${db.twitter.integration-test.port}/${db.twitter.integration-test.schema}'/>
                 <property name='username' value='test'/>
                 <property name='password' value='test'/>
             </dataSource>
