@@ -1,6 +1,6 @@
 package gov.usgs.cida.twitter.data.dao;
 
-import gov.usgs.cida.twitter.data.model.EventType;
+import gov.usgs.cida.twitter.data.model.Event;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -32,13 +32,13 @@ import org.junit.experimental.categories.Category;
  * @author isuftin
  */
 @Category(IntegrationTest.class)
-public class EventTypeDAOTest {
+public class EventDAOTest {
 
     private static Connection conn;
     private static SqlSessionFactory sqlSessionFactory;
     private static Liquibase liquibase;
 
-    public EventTypeDAOTest() {
+    public EventDAOTest() {
     }
 
     @BeforeClass
@@ -77,6 +77,7 @@ public class EventTypeDAOTest {
         liquibase.tag("integration-test");
     }
 
+
     @AfterClass
     public static void tearDownClass() throws SQLException {
         conn.close();
@@ -90,30 +91,30 @@ public class EventTypeDAOTest {
     @Test
     public void testGetAll() {
         System.out.println("getAll");
-        EventTypeDAO instance = new EventTypeDAO(sqlSessionFactory);
-        List<EventType> result = instance.getAll();
+        EventDAO instance = new EventDAO(sqlSessionFactory);
+        List<Event> result = instance.getAll();
         assertNotNull(result);
         assertThat(result.size(), greaterThan(0));
-        assertThat(result.size(), equalTo(8));
+        assertThat(result.size(), equalTo(2));
     }
 
     @Test
     public void testGetByEventTypeId() {
         System.out.println("getByEventTypeId");
         int id = 1;
-        EventTypeDAO instance = new EventTypeDAO(sqlSessionFactory);
-        EventType result = instance.getByEventTypeId(id);
+        EventDAO instance = new EventDAO(sqlSessionFactory);
+        Event result = instance.getByEventId(id);
         assertNotNull(result);
-        assertThat(result.getEventDescription(), is("When an http request is made"));
-        assertThat(result.getEventType(), is("CONNECTION ATTEMPT"));
+        assertThat(result.getEventMessage(), is("We've connected!"));
+        assertThat(result.getEventType().getEventDescription(), is("When a connection is established w/ a 200 response"));
     }
     
     @Test
     public void testGetInvalidId() {
         System.out.println("testGetInvalidId");
-        int id = 9;
-        EventTypeDAO instance = new EventTypeDAO(sqlSessionFactory);
-        EventType result = instance.getByEventTypeId(id);
+        int id = 3;
+        EventDAO instance = new EventDAO(sqlSessionFactory);
+        Event result = instance.getByEventId(id);
         assertNull(result);
     }
 

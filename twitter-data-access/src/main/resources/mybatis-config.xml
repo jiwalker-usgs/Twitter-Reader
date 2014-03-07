@@ -5,6 +5,7 @@
 <configuration>
     <typeAliases>
         <typeAlias type='gov.usgs.cida.twitter.data.model.EventType' alias='EventType'></typeAlias>
+        <typeAlias type='gov.usgs.cida.twitter.data.model.Event' alias='Event'></typeAlias>
     </typeAliases>
     <environments default='container'>
         <environment id='container'>
@@ -34,5 +35,6 @@
     </environments>
     <mappers>
         <mapper resource='gov/usgs/cida/mybatis/mappers/EventTypeMapper.xml' />
+        <mapper resource='gov/usgs/cida/mybatis/mappers/EventMapper.xml' />
     </mappers>
 </configuration>
