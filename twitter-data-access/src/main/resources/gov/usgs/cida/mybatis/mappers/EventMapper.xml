@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="gov.usgs.cida.mybatis.mappers.EventMapper">
+ 
+    <resultMap id="eventResultMap" type="Event" autoMapping="false">
+        <id property="eventId" column="EVENT_ID" />
+        <result property="eventMessage" column="EVENT_MESSAGE" />
+        <association 
+            property="eventType" 
+            resultMap="gov.usgs.cida.mybatis.mappers.EventTypeMapper.eventTypeResultMap" 
+            column="EVENT_TYPE">
+            <id property="eventTypeId" column="EVENT_TYPE_ID" />
+            <result property="eventType" column="et.EVENT_TYPE" />
+            <result property="eventDescription" column="et.EVENT_DESCRIPTION" />
+        </association>
+    </resultMap>
+    
+    <select id="getAll" resultMap="eventResultMap">
+        SELECT
+            e.EVENT_ID,
+            e.EVENT_TYPE,
+            e.EVENT_MESSAGE,
+            et.EVENT_DESCRIPTION,
+            et.EVENT_TYPE,
+            et.EVENT_TYPE_ID
+        FROM 
+            EVENT e
+        LEFT OUTER JOIN 
+            EVENT_TYPE et
+        ON 
+            e.EVENT_TYPE = et.EVENT_TYPE_ID
+    </select>
+ 
+    <select id="getByEventId" parameterType="int" resultMap="eventResultMap">
+        SELECT
+            e.EVENT_ID,
+            e.EVENT_TYPE,
+            e.EVENT_MESSAGE,
+            et.EVENT_DESCRIPTION,
+            et.EVENT_TYPE,
+            et.EVENT_TYPE_ID
+        FROM 
+            EVENT e
+        LEFT OUTER JOIN 
+            EVENT_TYPE et
+        ON 
+            e.EVENT_TYPE = et.EVENT_TYPE_ID
+        WHERE
+            EVENT_ID = #{id}
+    </select>
+</mapper>

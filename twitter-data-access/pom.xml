@@ -63,11 +63,22 @@
             <artifactId>derbyclient</artifactId>
             <version>10.10.1.1</version>
         </dependency>
+        
+        <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+            <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+        
+        <!-- Utils -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -81,9 +92,11 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
+        
     </dependencies>
     
     <build>
+        <!-- Maven filtering to inject properties to XML -->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -159,33 +172,6 @@
                 </executions>
             </plugin>
             
-            <!-- Create the in-memory database layout in the integration-test phase -->
-            <!--            <plugin>
-                <groupId>org.liquibase</groupId>
-                <artifactId>liquibase-maven-plugin</artifactId>
-                <version>${liquibase.version}</version>
-                <executions>
-                    <execution>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>update</goal>
-                        </goals>
-                        <configuration>
-                            <changeLogFile>
-                                src/main/resources/liquibase/changelogs/create-table-parent-changeLog.xml
-                            </changeLogFile>
-                            <driver>${database.driver}</driver>
-                            <url>jdbc:h2:mem:${database.name};DB_CLOSE_DELAY=-1</url>
-                            <username>test</username>
-                            <password>test</password>
-                            <liquibase.logging>debug</liquibase.logging>
-                            <verbose>true</verbose>
-                            <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
-            
             <!-- Make sure not to run the integration tests during the test phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -205,6 +191,7 @@
                     <excludedGroups>gov.usgs.cida.twitter.data.dao.IntegrationTest</excludedGroups>
                 </configuration>
             </plugin>
+            
             <!-- And DO run the integration tests during the test phase -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -220,7 +207,7 @@
                 <configuration>
                     <groups>gov.usgs.cida.twitter.data.dao.IntegrationTest</groups>
                     <systemPropertyVariables>
-                        <db.twitter.integration-test.schema>twitter</db.twitter.integration-test.schema>
+                        <db.twitter.integration-test.schema>${db.twitter.integration-test.schema}</db.twitter.integration-test.schema>
                         <db.twitter.integration-test.dbtype>${db.twitter.integration-test.dbtype}</db.twitter.integration-test.dbtype>
                         <db.twitter.integration-test.port>${db.twitter.integration-test.port}</db.twitter.integration-test.port>
                         <db.twitter.integration-test.driver>${db.twitter.integration-test.driver}</db.twitter.integration-test.driver>

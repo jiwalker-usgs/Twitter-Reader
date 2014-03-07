@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="create-table-event" author="Ivan Suftin"  context="update,integration-test">
+        <createTable tableName="EVENT">
+            <column 
+                name="EVENT_ID" 
+                type="BIGINT"
+                autoIncrement="true"
+            >
+                <constraints 
+                    nullable="false" 
+                    primaryKey="true" 
+                    primaryKeyName="pk_EVENT_ID" 
+                />
+            </column>
+            <column name="EVENT_TYPE" type="java.sql.Types.TINYINT" />
+            <column name="EVENT_MESSAGE" type="java.sql.Types.VARCHAR(150)" />
+        </createTable>
+        <createIndex 
+            tableName="EVENT" 
+            indexName="idx_EVENT_ID" 
+            unique="true">
+            <column name="EVENT_ID" type="java.sql.Types.TINYINT" />
+        </createIndex>
+        <addForeignKeyConstraint 
+            baseTableName="EVENT" 
+            baseColumnNames="EVENT_TYPE" 
+            constraintName="fk_EVENT_TYPE" 
+            referencedTableName="EVENT_TYPE" 
+            referencedColumnNames="EVENT_TYPE_ID"/>
+        <rollback>
+            <dropTable 
+                tableName="EVENT" 
+            />
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
