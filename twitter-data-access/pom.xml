@@ -21,7 +21,7 @@
         <db.twitter.integration-test.schema>twitter</db.twitter.integration-test.schema>
         <db.twitter.integration-test.driver>org.apache.derby.jdbc.ClientDriver</db.twitter.integration-test.driver>
         <db.twitter.integration-test.dbtype>derby</db.twitter.integration-test.dbtype>
-        <db.twitter.integration-test.port>64738</db.twitter.integration-test.port>
+        <!--<db.twitter.integration-test.port>64738</db.twitter.integration-test.port>-->
     </properties>
     
     <dependencies>
@@ -135,7 +135,7 @@
                         <configuration>
                             <portNames>
                                 <portName>db.twitter.integration-test.monitor.port</portName>
-                                <!--<portName>db.twitter.integration-test.port</portName>-->
+                                <portName>db.twitter.integration-test.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
