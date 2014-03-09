@@ -4,7 +4,6 @@ import gov.usgs.cida.twitter.data.model.Event;
 import gov.usgs.cida.twitter.data.model.EventType;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -29,7 +28,6 @@ import static org.junit.Assert.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 
 /**
@@ -71,12 +69,12 @@ public class EventDAOTest {
         Class.forName(driver).newInstance();
 
         conn = DriverManager.getConnection("jdbc:" + dbType + "://localhost:" + port + "/" + schema + ";create=true", "test", "test");
-        
+
         Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
         liquibase = new Liquibase("src/main/resources/liquibase/changelogs/create-table-parent-changeLog.xml", new FileSystemResourceAccessor(), database);
-        
-        liquibase.update(contexts);
-        
+
+//        liquibase.update(contexts);
+
         try (InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml")) {
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, "integration-test");
         }
@@ -88,13 +86,30 @@ public class EventDAOTest {
     }
 
     @Before
-    public void beforeTest() {
+    public void beforeTest() throws LiquibaseException {
+        liquibase.update(contexts);
         instance = new EventDAO(sqlSessionFactory);
     }
 
     @After
     public void afterTest() throws DatabaseException, LiquibaseException {
-        liquibase.rollback(rollbackTag, contexts, new PrintWriter(System.out));
+        liquibase.dropAll();
+    }
+    
+    @Test
+    public void testRetreiveInsertedEvent() {
+        System.out.println("testRetreiveInsertedEvent");
+        Event insertEvent = new Event(new EventType(EventType.Type.CONNECTED), "This is a test");
+        int insertedRows = instance.insertEvent(insertEvent);
+        assertThat(insertedRows, is(1));
+
+        List<Event> retrievedEventList = instance.getAll();
+        Event retrievedEvent;
+        assertThat(retrievedEventList.size(), greaterThan(0));
+        assertThat(retrievedEventList.size(), is(3));
+
+        retrievedEvent = retrievedEventList.get(retrievedEventList.size() - 1);
+        assertThat(retrievedEvent.getEventMessage(), is("This is a test"));
     }
 
     @Test

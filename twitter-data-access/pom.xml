@@ -243,6 +243,10 @@
                             <filesets>
                                 <fileset>
                                     <useDefaultExcludes>true</useDefaultExcludes>
+                                    <directory>../twitter</directory>
+                                </fileset>
+                                <fileset>
+                                    <useDefaultExcludes>true</useDefaultExcludes>
                                     <directory>twitter</directory>
                                 </fileset>
                                 <fileset>

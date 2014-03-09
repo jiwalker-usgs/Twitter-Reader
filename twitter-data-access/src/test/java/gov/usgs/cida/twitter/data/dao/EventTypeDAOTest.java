@@ -1,5 +1,6 @@
 package gov.usgs.cida.twitter.data.dao;
 
+import gov.usgs.cida.twitter.data.model.Event;
 import gov.usgs.cida.twitter.data.model.EventType;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -18,12 +19,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import org.junit.experimental.categories.Category;
 
@@ -116,5 +117,5 @@ public class EventTypeDAOTest {
         EventType result = instance.getByEventTypeId(id);
         assertNull(result);
     }
-
+    
 }
