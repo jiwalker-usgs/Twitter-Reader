@@ -23,30 +23,31 @@ public class EventDAO {
     }
 
     public List<Event> getAll() {
-        List<Event> eventTypeList;
+        List<Event> eventList;
 
         try (SqlSession session = sqlSessionFactory.openSession()) {
-            eventTypeList = session.selectList("gov.usgs.cida.mybatis.mappers.EventMapper.getAll");
+            eventList = session.selectList("gov.usgs.cida.mybatis.mappers.EventMapper.getAll");
         }
 
-        return eventTypeList;
+        return eventList;
     }
 
     public Event getByEventId(int id) {
-        Event result;
+        Event event;
 
         try (SqlSession session = sqlSessionFactory.openSession()) {
-            result = session.selectOne("gov.usgs.cida.mybatis.mappers.EventMapper.getByEventId", id);
+            event = session.selectOne("gov.usgs.cida.mybatis.mappers.EventMapper.getByEventId", id);
         }
 
-        return result;
+        return event;
     }
 
     public int insertEvent(Event event) {
         int affectedRowsCount;
         try (SqlSession session = sqlSessionFactory.openSession()) {
             affectedRowsCount = session.insert("gov.usgs.cida.mybatis.mappers.EventMapper.insertEvent", event);
-            session.commit();
+            session.commit(true);
+            session.close();
         }
         return affectedRowsCount;
     }

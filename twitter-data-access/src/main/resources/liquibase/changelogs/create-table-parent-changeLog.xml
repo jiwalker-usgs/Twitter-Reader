@@ -7,13 +7,13 @@
     http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
     
     <include file="create-table-event-type.xml" relativeToChangelogFile="true"/>
-    <include file="load-table-event-type.xml" relativeToChangelogFile="true"/>
-    
     <include file="create-table-event.xml" relativeToChangelogFile="true"/>
-    <include file="load-table-event.xml" relativeToChangelogFile="true"/>
+    <include file="load-table-event-type.xml" relativeToChangelogFile="true" />
     
     <changeSet id="tag-integration-test-database" author="Ivan Suftin" context="integration-test">
-        <tagDatabase tag="integration-tests-tag" />
+        <tagDatabase tag="base-tables-data-loaded" />
     </changeSet>
+    
+    <include file="load-table-event.xml" relativeToChangelogFile="true"/>
     
 </databaseChangeLog>

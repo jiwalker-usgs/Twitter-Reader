@@ -1,8 +1,9 @@
 package gov.usgs.cida.twitter.data.dao;
 
-import gov.usgs.cida.twitter.data.model.Event;
 import gov.usgs.cida.twitter.data.model.EventType;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -19,13 +20,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 
 /**
@@ -35,15 +37,14 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class EventTypeDAOTest {
 
-    private static Connection conn;
+   private static Connection conn;
     private static SqlSessionFactory sqlSessionFactory;
     private static Liquibase liquibase;
-
-    public EventTypeDAOTest() {
-    }
+    private EventTypeDAO instance = null;
+    private static final Contexts contexts = new Contexts("integration-test");
 
     @BeforeClass
-    public static void setUpClass() throws ClassNotFoundException, SQLException, DatabaseException, LiquibaseException, InstantiationException, IllegalAccessException {
+    public static void setUpClass() throws ClassNotFoundException, SQLException, DatabaseException, LiquibaseException, InstantiationException, IllegalAccessException, IOException {
         String port = System.getProperty("db.twitter.integration-test.port");
         String driver = System.getProperty("db.twitter.integration-test.driver");
         String dbType = System.getProperty("db.twitter.integration-test.dbtype");
@@ -60,22 +61,20 @@ public class EventTypeDAOTest {
         if (StringUtils.isBlank(schema)) {
             throw new NullPointerException("System property \"db.twitter.integration-test.schema\" not found");
         }
-        
+
         Class.forName(driver).newInstance();
-        
+
         conn = DriverManager.getConnection("jdbc:" + dbType + "://localhost:" + port + "/" + schema + ";create=true", "test", "test");
 
         Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
         liquibase = new Liquibase("src/main/resources/liquibase/changelogs/create-table-parent-changeLog.xml", new FileSystemResourceAccessor(), database);
 
+        liquibase.dropAll();
+        liquibase.update(contexts);
+        
         try (InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml")) {
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, "integration-test");
-        } catch (Exception ex) {
-            System.out.println("Error initializing SqlSessionFactoryBuilder: " + ex);
         }
-        
-        liquibase.update(new Contexts("integration-test"));
-        liquibase.tag("integration-test");
     }
 
     @AfterClass
@@ -83,15 +82,14 @@ public class EventTypeDAOTest {
         conn.close();
     }
 
-    @After
-    public void afterTest() throws DatabaseException, LiquibaseException {
-        liquibase.rollback("integration-test", new Contexts("integration-test"));
+    @Before
+    public void beforeTest() throws LiquibaseException {
+        instance = new EventTypeDAO(sqlSessionFactory);
     }
-
+    
     @Test
     public void testGetAll() {
         System.out.println("getAll");
-        EventTypeDAO instance = new EventTypeDAO(sqlSessionFactory);
         List<EventType> result = instance.getAll();
         assertNotNull(result);
         assertThat(result.size(), greaterThan(0));
@@ -102,7 +100,6 @@ public class EventTypeDAOTest {
     public void testGetByEventTypeId() {
         System.out.println("getByEventTypeId");
         int id = 1;
-        EventTypeDAO instance = new EventTypeDAO(sqlSessionFactory);
         EventType result = instance.getByEventTypeId(id);
         assertNotNull(result);
         assertThat(result.getEventDescription(), is("When an http request is made"));
@@ -113,7 +110,6 @@ public class EventTypeDAOTest {
     public void testGetInvalidId() {
         System.out.println("testGetInvalidId");
         int id = 9;
-        EventTypeDAO instance = new EventTypeDAO(sqlSessionFactory);
         EventType result = instance.getByEventTypeId(id);
         assertNull(result);
     }
