@@ -15,47 +15,20 @@ public class EventType implements Serializable {
     private String eventType;
     private String eventDescription;
 
-    public EventType() {}
-    
-    public EventType(EventTypeType type) {
-        switch(type) {
-            case CONNECTED:
-                this.eventTypeId = 1;
-                break;
-            case CONNECTION_ATTEMPT:
-                this.eventTypeId = 2;
-                break;
-            case CONNECTION_ERROR:
-                this.eventTypeId = 3;
-                break;
-            case DISCONNECTED:
-                this.eventTypeId = 4;
-                break;
-            case HTTP_ERROR:
-                this.eventTypeId = 5;
-                break;
-            case PROCESSING:
-                this.eventTypeId = 6;
-                break;
-            case STOPPED_BY_ERROR:
-                this.eventTypeId = 7;
-                break;
-            case STOPPED_BY_USER:
-                this.eventTypeId = 8;
-                break;
-        }
+    public EventType() {
     }
-    
-    public EventType(Integer eventTypeId) {
-        this.eventTypeId = eventTypeId;
+
+    public EventType(Type type) {
+        this.eventTypeId = type.getEventType();
+        this.eventType = type.getEventTypeName();
+        this.eventDescription = type.getEventDescription();
     }
-            
+
     /**
      * Provides a String representation of this object
      *
      * @return
      */
-
     @Override
     public String toString() {
         return Objects.toStringHelper(this).toString();
@@ -80,6 +53,70 @@ public class EventType implements Serializable {
      */
     public String getEventDescription() {
         return eventDescription;
+    }
+
+    /**
+     * Represents a finite set of Event types that may exist
+     */
+    public static enum Type {
+
+        /**
+         * When an http request is made
+         */
+        CONNECTION_ATTEMPT(1, "CONNECTION_ATTEMPT", "When an http request is made"),
+        /**
+         * When a connection is established w/ a 200 response
+         */
+        CONNECTED(2, "CONNECTED", "When a connection is established w/ a 200 response"),
+        /**
+         * When we begin receiving/processing messages
+         */
+        PROCESSING(3, "PROCESSING", "When we begin receiving/processing messages"),
+        /**
+         * When an established connection gets disconnected for any reason
+         */
+        DISCONNECTED(4, "DISCONNECTED", "When an established connection gets disconnected for any reason"),
+        /**
+         * When a connection fails due to either a bad request (invalid host,
+         * invalid requests)
+         */
+        CONNECTION_ERROR(5, "CONNECTION_ERROR", "When a connection fails due to either a bad request (invalid host, invalid requests)"),
+        /**
+         * When a connection fails due to a 400/500 response
+         */
+        HTTP_ERROR(6, "HTTP_ERROR", "When a connection fails due to a 400/500 response"),
+        /**
+         * When the client is explicitly stopped by the user. No more
+         * connections will be attempted
+         */
+        STOPPED_BY_USER(7, "STOPPED_BY_USER", "When the client is explicitly stopped by the user. No more connections will be attempted"),
+        /**
+         * When the client is stopped due to an error. No more connections will
+         * be attempted
+         */
+        STOPPED_BY_ERROR(8, "STOPPED_BY_ERROR", "When the client is stopped due to an error. No more connections will be attempted");
+
+        private final int eventType;
+        private final String eventTypeName;
+        private final String eventDescription;
+
+        private Type(int type, String name, String description) {
+            eventType = type;
+            eventTypeName = name;
+            eventDescription = description;
+        }
+
+        public int getEventType() {
+            return eventType;
+        }
+
+        public String getEventTypeName() {
+            return eventTypeName;
+        }
+
+        public String getEventDescription() {
+            return eventDescription;
+        }
     }
 
 }

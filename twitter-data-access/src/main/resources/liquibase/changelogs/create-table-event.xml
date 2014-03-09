@@ -21,6 +21,7 @@
             </column>
             <column name="EVENT_TYPE" type="java.sql.Types.TINYINT" />
             <column name="EVENT_MESSAGE" type="java.sql.Types.VARCHAR(150)" />
+            <column name="EVENT_TIMESTAMP" type="java.sql.Types.TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP" />
         </createTable>
         <createIndex 
             tableName="EVENT" 

@@ -3,6 +3,8 @@ package gov.usgs.cida.twitter.data.model;
 import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  *
@@ -15,7 +17,19 @@ public class Event implements Serializable {
     private BigDecimal eventId;
     private EventType eventType;
     private String eventMessage;
+    private Timestamp timestamp;
 
+    public Event() {}
+    
+    public Event(EventType eventType, String eventMessage) {
+        this(eventType, eventMessage, new Timestamp(new Date().getTime()));
+    }
+    
+    public Event(EventType eventType, String eventMessage, Timestamp timestamp) {
+        this.eventType = eventType;
+        this.eventMessage = eventMessage;
+    }
+    
     /**
      * Provides a String representation of this object
      *
@@ -45,6 +59,13 @@ public class Event implements Serializable {
      */
     public String getEventMessage() {
         return eventMessage;
+    }
+
+    /**
+     * @return the timestamp
+     */
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
 
 }
