@@ -24,10 +24,6 @@
             unique="true">
             <column name="EVENT_TYPE_ID" type="java.sql.Types.TINYINT" />
         </createIndex>
-        <rollback>
-            <dropTable 
-                tableName="EVENT_TYPE" 
-            />
-        </rollback>
+        <rollback />
     </changeSet>
 </databaseChangeLog>

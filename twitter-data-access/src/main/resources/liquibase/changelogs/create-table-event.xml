@@ -27,7 +27,7 @@
             tableName="EVENT" 
             indexName="idx_EVENT_ID" 
             unique="true">
-            <column name="EVENT_ID" type="java.sql.Types.TINYINT" />
+            <column name="EVENT_ID" type="java.sql.Types.BIGINT" />
         </createIndex>
         <addForeignKeyConstraint 
             baseTableName="EVENT" 
@@ -36,9 +36,7 @@
             referencedTableName="EVENT_TYPE" 
             referencedColumnNames="EVENT_TYPE_ID"/>
         <rollback>
-            <dropTable 
-                tableName="EVENT" 
-            />
+            <delete tableName="EVENT"/>
         </rollback>
     </changeSet>
 </databaseChangeLog>

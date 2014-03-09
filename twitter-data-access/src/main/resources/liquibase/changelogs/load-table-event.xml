@@ -6,15 +6,19 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
     http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="load-table-event" author="Ivan Suftin" context="integration-test">
-       <loadData 
+    <changeSet id="load-table-event" author="Ivan Suftin" context="integration-test-load-event-data">
+        <loadUpdateData 
             tableName="EVENT"
             encoding="UTF-8"
             file="src/main/resources/liquibase/changelogs/data/load-table-event.csv"
             quotchar="&quot;" 
-            separator=",">
+            separator=","
+            primaryKey="EVENT_ID">
             <column name="EVENT_TYPE" type="NUMERIC" />
             <column name="EVENT_MESSAGE" type="STRING" />
-       </loadData>
+        </loadUpdateData>
+        <rollback>
+            <delete tableName="EVENT"/>
+        </rollback>
     </changeSet>
 </databaseChangeLog>
