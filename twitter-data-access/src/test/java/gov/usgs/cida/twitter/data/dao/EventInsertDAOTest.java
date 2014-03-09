@@ -37,7 +37,7 @@ import org.junit.experimental.categories.Category;
  * @author isuftin
  */
 @Category(IntegrationTest.class)
-public class EventDAOTest {
+public class EventInsertDAOTest {
 
     private static Connection conn;
     private static SqlSessionFactory sqlSessionFactory;
@@ -46,7 +46,7 @@ public class EventDAOTest {
     private static final String rollbackTag = "integration-tests-tag";
     private static final Contexts contexts = new Contexts("integration-test");
 
-    public EventDAOTest() {
+    public EventInsertDAOTest() {
     }
 
     @BeforeClass
@@ -98,30 +98,19 @@ public class EventDAOTest {
     }
 
     @Test
-    public void testGetAll() {
-        System.out.println("getAll");
-        List<Event> result = instance.getAll();
-        assertNotNull(result);
-        assertThat(result.size(), greaterThan(0));
-        assertThat(result.size(), equalTo(2));
-    }
+    public void testRetreiveInsertedEvent() {
+        System.out.println("testRetreiveInsertedEvent");
+        Event insertEvent = new Event(new EventType(EventType.Type.CONNECTED), "This is a test");
+        int insertedRows = instance.insertEvent(insertEvent);
+        assertThat(insertedRows, is(1));
 
-    @Test
-    public void testGetByEventTypeId() {
-        System.out.println("getByEventTypeId");
-        int id = 1;
-        Event result = instance.getByEventId(id);
-        assertNotNull(result);
-        assertThat(result.getEventMessage(), is("We've connected!"));
-        assertThat(result.getEventType().getEventDescription(), is("When a connection is established w/ a 200 response"));
-    }
+        List<Event> retrievedEventList = instance.getAll();
+        Event retrievedEvent = null;
+        assertThat(retrievedEventList.size(), greaterThan(0));
+        assertThat(retrievedEventList.size(), is(3));
 
-    @Test
-    public void testGetInvalidId() {
-        System.out.println("testGetInvalidId");
-        int id = 3;
-        Event result = instance.getByEventId(id);
-        assertNull(result);
+        retrievedEvent = retrievedEventList.get(retrievedEventList.size() - 1);
+        assertThat(retrievedEvent.getEventMessage(), is("This is a test"));
     }
 
 }

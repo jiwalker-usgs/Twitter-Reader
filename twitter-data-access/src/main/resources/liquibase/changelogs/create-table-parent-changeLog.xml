@@ -12,4 +12,8 @@
     <include file="create-table-event.xml" relativeToChangelogFile="true"/>
     <include file="load-table-event.xml" relativeToChangelogFile="true"/>
     
+    <changeSet id="tag-integration-test-database" author="Ivan Suftin" context="integration-test">
+        <tagDatabase tag="integration-tests-tag" />
+    </changeSet>
+    
 </databaseChangeLog>

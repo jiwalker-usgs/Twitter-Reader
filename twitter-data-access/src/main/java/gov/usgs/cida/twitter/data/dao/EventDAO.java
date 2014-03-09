@@ -42,4 +42,13 @@ public class EventDAO {
         return result;
     }
 
+    public int insertEvent(Event event) {
+        int affectedRowsCount = -1;
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            affectedRowsCount = session.insert("gov.usgs.cida.mybatis.mappers.EventMapper.insertEvent", event);
+            session.commit();
+        }
+        return affectedRowsCount;
+    }
+
 }
