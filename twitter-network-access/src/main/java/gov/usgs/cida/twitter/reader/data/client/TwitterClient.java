@@ -11,6 +11,8 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.BasicAuth;
 import com.twitter.hbc.httpclient.auth.OAuth1;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.BlockingQueue;
@@ -39,9 +41,9 @@ public class TwitterClient extends Observable {
     private final static ScheduledExecutorService messageSes = Executors.newScheduledThreadPool(1);
     private final static ScheduledFuture<TwitterEventRunner> eventFuture = null;
     private final static ScheduledFuture<TwitterMessageRunner> messageFuture = null;
-    private List<Long> userIds = null;
-    private List<String> terms = null;
-    private List<Location> locations = null;
+    private List<Long> userIds = new ArrayList<>();
+    private List<String> terms = new ArrayList<>();
+    private List<Location> locations = new ArrayList<>();
 
     /**
      * Thread runnable object that checks the message queue and posts new
@@ -100,16 +102,10 @@ public class TwitterClient extends Observable {
      * @param consumerSecret Twitter API secret
      * @param token Twitter Access token
      * @param secret Twitter Access token secret
-     * @param userIds List of user IDs to track
-     * @param terms List of terms IDs to track
-     * @param locations List of locations IDs to track
      */
-    public TwitterClient(String consumerKey, String consumerSecret, String token, String secret, List<Long> userIds, List<String> terms, List<Location> locations) {
+    public TwitterClient(String consumerKey, String consumerSecret, String token, String secret) {
         if (client == null) {
             client = this.buildClient(new OAuth1(consumerKey, consumerSecret, token, secret));
-            this.userIds = userIds;
-            this.terms = terms;
-            this.locations = locations;
             LOGGER.debug("New Twitter client created");
         }
     }
@@ -120,16 +116,10 @@ public class TwitterClient extends Observable {
      *
      * @param username Twitter user name
      * @param password Twitter password
-     * @param userIds List of user IDs to track
-     * @param terms List of terms IDs to track
-     * @param locations List of locations IDs to track
      */
-    public TwitterClient(String username, String password, List<Long> userIds, List<String> terms, List<Location> locations) {
+    public TwitterClient(String username, String password) {
         if (client == null) {
             client = this.buildClient(new BasicAuth(username, password));
-            this.userIds = userIds;
-            this.terms = terms;
-            this.locations = locations;
             LOGGER.debug("New Twitter client created");
         }
     }
@@ -225,16 +215,16 @@ public class TwitterClient extends Observable {
         eventQueue = new LinkedBlockingQueue<>(1000);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
-        if (this.userIds != null) {
-            endpoint.followings(this.userIds);
+        if (this.getUserIds() != null) {
+            endpoint.followings(this.getUserIds());
         }
 
-        if (this.terms != null) {
-            endpoint.trackTerms(this.terms);
+        if (this.getTerms() != null) {
+            endpoint.trackTerms(this.getTerms());
         }
 
-        if (this.locations != null) {
-            endpoint.locations(this.locations);
+        if (this.getLocations() != null) {
+            endpoint.locations(this.getLocations());
         }
 
         ClientBuilder cb = new ClientBuilder().
@@ -274,5 +264,47 @@ public class TwitterClient extends Observable {
             eventBus = new EventBus("Twitter-Eventbus");
         }
         return eventBus;
+    }
+
+    /**
+     * @return the userIds
+     */
+    public List<Long> getUserIds() {
+        return Collections.unmodifiableList(userIds);
+    }
+
+    /**
+     * @param userIds the userIds to set
+     */
+    public void setUserIds(List<Long> userIds) {
+        Collections.copy(this.userIds, userIds);
+    }
+
+    /**
+     * @return the terms
+     */
+    public List<String> getTerms() {
+        return Collections.unmodifiableList(terms);
+    }
+
+    /**
+     * @param terms the terms to set
+     */
+    public void setTerms(List<String> terms) {
+        Collections.copy(this.terms, terms);
+    }
+
+    /**
+     * @return the locations
+     */
+    public List<Location> getLocations() {
+        return Collections.unmodifiableList(locations);
+    }
+
+    /**
+     * @param locations the locations to set
+     */
+    public void setLocations(List<Location> locations) {
+        Collections.copy(this.locations, locations);
     }
 }

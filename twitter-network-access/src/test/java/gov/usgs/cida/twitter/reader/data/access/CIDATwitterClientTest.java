@@ -48,14 +48,14 @@ public class CIDATwitterClientTest {
     @Test
     public void testClientCreationUsingUsernameAndPass() {
         System.out.println("testClientCreation");
-        TwitterClient test = new TwitterClient(user, pass, userIds, terms, locations);
+        TwitterClient test = new TwitterClient(user, pass);
         assertNotNull(test);
     }
 
     @Test
     public void testGetValidEventBus() {
         System.out.println("testGetValidEventBus");
-        TwitterClient client = new TwitterClient(user, pass, userIds, terms, locations);
+        TwitterClient client = new TwitterClient(user, pass);
         EventBus test = TwitterClient.getEventBus();
         assertNotNull(test);
     }
@@ -64,7 +64,7 @@ public class CIDATwitterClientTest {
     @Ignore
     public void testTryConnectionWithNormalAuth() {
         System.out.println("testTryConnectionWithNormalAuth");
-        TwitterClient client = new TwitterClient(user, pass, userIds, terms, locations);
+        TwitterClient client = new TwitterClient(user, pass);
         client.connect();
         client.stop(0);
         assertTrue(true);
@@ -74,7 +74,7 @@ public class CIDATwitterClientTest {
     @Ignore
     public void testTryConnectionWithOAuth() {
         System.out.println("testTryConnectionWithOAuth");
-        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
+        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret);
         client.connect();
         client.stop(0);
         assertTrue(true);
@@ -84,7 +84,7 @@ public class CIDATwitterClientTest {
     @Ignore
     public void testTryCreatingMessageLogger() throws InterruptedException {
         System.out.println("testTryCreatingMessageLogger");
-        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
+        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret);
         client.connect();
         LoggingMessageObserver lmo = new LoggingMessageObserver();
         lmo.register();
@@ -100,7 +100,7 @@ public class CIDATwitterClientTest {
     @Ignore
     public void testTryCreatingEventLogger() throws InterruptedException {
         System.out.println("testTryCreatingMessageLogger");
-        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
+        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret);
         
         LoggingEventObserver leo = new LoggingEventObserver();
         leo.register();

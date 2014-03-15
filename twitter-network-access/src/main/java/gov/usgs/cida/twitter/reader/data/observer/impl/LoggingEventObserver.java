@@ -13,7 +13,17 @@ import org.slf4j.LoggerFactory;
  */
 public class LoggingEventObserver extends EventObserver {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(LoggingEventObserver.class);
+    private Logger logger;
+    
+    public LoggingEventObserver() {
+        logger = LoggerFactory.getLogger(LoggingEventObserver.class);
+    }
+    
+    public LoggingEventObserver(Logger logger) {
+        this.logger = logger;
+    }
+    
+    
     
     /**
      * @see EventObserver#register() 
@@ -21,7 +31,7 @@ public class LoggingEventObserver extends EventObserver {
     @Override
     public void register() {
         TwitterClient.getEventBus().register(this);
-        LOGGER.info("LoggingEventObserver registered");
+        logger.info("LoggingEventObserver registered");
     }
     
     /**
@@ -30,7 +40,7 @@ public class LoggingEventObserver extends EventObserver {
     @Override
     public void unregister() {
         TwitterClient.getEventBus().unregister(this);
-        LOGGER.info("LoggingEventObserver unregistered");
+        logger.info("LoggingEventObserver unregistered");
     }
     
     /**
@@ -40,7 +50,7 @@ public class LoggingEventObserver extends EventObserver {
     @Subscribe
     @Override
     public void handleEvent(Event event) {
-        LOGGER.info("New incoming Twitter event: " + event.getMessage());
+        logger.info("New incoming Twitter event: " + event.getMessage());
     }
     
 }
