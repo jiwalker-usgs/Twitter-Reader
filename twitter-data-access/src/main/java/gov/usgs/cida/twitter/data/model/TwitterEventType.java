@@ -1,13 +1,15 @@
 package gov.usgs.cida.twitter.data.model;
 
 import com.google.common.base.Objects;
+import com.twitter.hbc.core.event.EventType;
 import java.io.Serializable;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  *
  * @author isuftin
  */
-public class EventType implements Serializable {
+public class TwitterEventType implements Serializable {
 
     private static final long serialVersionUID = 680172890678713337L;
 
@@ -15,10 +17,14 @@ public class EventType implements Serializable {
     private String eventType;
     private String eventDescription;
 
-    public EventType() {
+    public TwitterEventType() {
     }
 
-    public EventType(Type type) {
+    public TwitterEventType(EventType eventType) {
+        this(Type.valueOf(eventType.name()));
+    }
+
+    public TwitterEventType(Type type) {
         this.eventTypeId = type.getEventType();
         this.eventType = type.getEventTypeName();
         this.eventDescription = type.getEventDescription();
@@ -31,7 +37,7 @@ public class EventType implements Serializable {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).toString();
+        return ToStringBuilder.reflectionToString(this);
     }
 
     /**

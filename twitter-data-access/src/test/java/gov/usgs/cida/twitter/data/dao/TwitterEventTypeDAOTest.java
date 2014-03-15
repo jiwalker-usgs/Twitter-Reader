@@ -1,10 +1,8 @@
 package gov.usgs.cida.twitter.data.dao;
 
-import gov.usgs.cida.twitter.data.model.Event;
-import gov.usgs.cida.twitter.data.model.EventType;
+import gov.usgs.cida.twitter.data.model.TwitterEventType;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -21,12 +19,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import org.junit.Before;
 import org.junit.experimental.categories.Category;
@@ -36,16 +32,13 @@ import org.junit.experimental.categories.Category;
  * @author isuftin
  */
 @Category(IntegrationTest.class)
-public class EventDAOTest {
+public class TwitterEventTypeDAOTest {
 
-    private static Connection conn;
+   private static Connection conn;
     private static SqlSessionFactory sqlSessionFactory;
     private static Liquibase liquibase;
-    private EventDAO instance = null;
+    private TwitterEventTypeDAO instance = null;
     private static final Contexts contexts = new Contexts("integration-test");
-
-    public EventDAOTest() {
-    }
 
     @BeforeClass
     public static void setUpClass() throws ClassNotFoundException, SQLException, DatabaseException, LiquibaseException, InstantiationException, IllegalAccessException, IOException {
@@ -68,10 +61,12 @@ public class EventDAOTest {
 
         Class.forName(driver).newInstance();
 
-        conn = DriverManager.getConnection("jdbc:" + dbType + "://127.0.0.1:" + port + "/" + schema + ";create=true", "test", "test");
-        
+        conn = DriverManager.getConnection("jdbc:" + dbType + "://localhost:" + port + "/" + schema + ";create=true", "test", "test");
+
         Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
         liquibase = new Liquibase("src/main/resources/liquibase/changelogs/create-table-parent-changeLog.xml", new FileSystemResourceAccessor(), database);
+
+        liquibase.dropAll();
         liquibase.update(contexts);
         
         try (InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml")) {
@@ -85,59 +80,35 @@ public class EventDAOTest {
     }
 
     @Before
-    public void beforeTest() throws LiquibaseException, InterruptedException {
-        instance = new EventDAO(sqlSessionFactory);
-        liquibase.update("integration-test-load-event-data");
+    public void beforeTest() throws LiquibaseException {
+        instance = new TwitterEventTypeDAO(sqlSessionFactory);
     }
-
-    @After
-    public void afterTest() throws LiquibaseException {
-        liquibase.rollback("base-tables-data-loaded", "integration-test-load-event-data", new PrintWriter(System.out));
-    }
-
+    
     @Test
-    public void testRetreiveInsertedEvent() {
-        System.out.println("testRetreiveInsertedEvent");
-        Event insertEvent = new Event(new EventType(EventType.Type.CONNECTED), "This is a test");
-        Event retrievedEvent;
-        int insertedRows = instance.insertEvent(insertEvent);
-        assertThat(insertedRows, is(1));
-            
-        List<Event> retrievedEventList = instance.getAll();
-        retrievedEvent = retrievedEventList.get(retrievedEventList.size() - 1);
-        assertThat(retrievedEvent.getEventMessage(), is("This is a test"));
-        assertThat(retrievedEventList.size(), greaterThan(0));
-        assertThat(retrievedEventList.size(), is(3));
+    public void testGetAll() {
+        System.out.println("getAll");
+        List<TwitterEventType> result = instance.getAll();
+        assertNotNull(result);
+        assertThat(result.size(), greaterThan(0));
+        assertThat(result.size(), equalTo(8));
     }
 
     @Test
     public void testGetByEventTypeId() {
         System.out.println("getByEventTypeId");
         int id = 1;
-        Event result = instance.getByEventId(id);
+        TwitterEventType result = instance.getByEventTypeId(id);
         assertNotNull(result);
-        assertThat(result.getEventMessage(), is("connected!"));
-        assertThat(result.getEventType().getEventDescription(), is("When a connection is established w/ a 200 response"));
+        assertThat(result.getEventDescription(), is("When an http request is made"));
+        assertThat(result.getEventType(), is("CONNECTION ATTEMPT"));
     }
-
-    @Test
-    public void testGetAll() throws InterruptedException {
-        System.out.println("getAll");
-        List<Event> result = instance.getAll();
-        assertNotNull(result);
-        assertThat(result.size(), greaterThan(0));
-        // TODO- For some reason the ROLLBACK delete is not working correctly so 
-        // the count here is 3 (includes the insert done by testRetreiveInsertedEvent()
-        // I am wondering if this is a Liquibase or a Derby issue...
-//        assertThat(result.size(), equalTo(2));
-    }
-
+    
     @Test
     public void testGetInvalidId() {
         System.out.println("testGetInvalidId");
-        int id = 3;
-        Event result = instance.getByEventId(id);
+        int id = 9;
+        TwitterEventType result = instance.getByEventTypeId(id);
         assertNull(result);
     }
-
+    
 }

@@ -10,22 +10,22 @@ import java.util.Date;
  *
  * @author isuftin
  */
-public class Event implements Serializable {
+public class TwitterEvent implements Serializable {
     
     private static final long serialVersionUID = 5140178149793574673L;
 
     private BigDecimal eventId;
-    private EventType eventType;
+    private TwitterEventType eventType;
     private String eventMessage;
     private Timestamp timestamp;
 
-    public Event() {}
+    public TwitterEvent() {}
     
-    public Event(EventType eventType, String eventMessage) {
+    public TwitterEvent(TwitterEventType eventType, String eventMessage) {
         this(eventType, eventMessage, new Timestamp(new Date().getTime()));
     }
     
-    public Event(EventType eventType, String eventMessage, Timestamp timestamp) {
+    public TwitterEvent(TwitterEventType eventType, String eventMessage, Timestamp timestamp) {
         this.eventType = eventType;
         this.eventMessage = eventMessage;
     }
@@ -50,7 +50,7 @@ public class Event implements Serializable {
     /**
      * @return the eventType
      */
-    public EventType getEventType() {
+    public TwitterEventType getEventType() {
         return eventType;
     }
 

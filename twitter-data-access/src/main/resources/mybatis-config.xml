@@ -4,8 +4,8 @@
   'http://mybatis.org/dtd/mybatis-3-config.dtd'>
 <configuration>
     <typeAliases>
-        <typeAlias type='gov.usgs.cida.twitter.data.model.EventType' alias='EventType'></typeAlias>
-        <typeAlias type='gov.usgs.cida.twitter.data.model.Event' alias='Event'></typeAlias>
+        <typeAlias type='gov.usgs.cida.twitter.data.model.TwitterEventType' alias='TwitterEventType'></typeAlias>
+        <typeAlias type='gov.usgs.cida.twitter.data.model.TwitterEvent' alias='TwitterEvent'></typeAlias>
     </typeAliases>
     <environments default='container'>
         <environment id='container'>
@@ -35,7 +35,7 @@
         
     </environments>
     <mappers>
-        <mapper resource='gov/usgs/cida/mybatis/mappers/EventTypeMapper.xml' />
-        <mapper resource='gov/usgs/cida/mybatis/mappers/EventMapper.xml' />
+        <mapper resource='gov/usgs/cida/mybatis/mappers/TwitterEventTypeMapper.xml' />
+        <mapper resource='gov/usgs/cida/mybatis/mappers/TwitterEventMapper.xml' />
     </mappers>
 </configuration>

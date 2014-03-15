@@ -9,6 +9,9 @@ import gov.usgs.cida.twitter.reader.data.observer.impl.LoggingMessageObserver;
 import java.util.ArrayList;
 import java.util.List;
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  *
@@ -29,7 +32,7 @@ public class CIDATwitterClientTest {
     public CIDATwitterClientTest() {
     }
 
-    @org.junit.BeforeClass
+    @BeforeClass
     public static void beforeClass() {
         user = "";
         pass = "";
@@ -42,14 +45,14 @@ public class CIDATwitterClientTest {
         locations = new ArrayList<>();;
     }
 
-    @org.junit.Test
+    @Test
     public void testClientCreationUsingUsernameAndPass() {
         System.out.println("testClientCreation");
         TwitterClient test = new TwitterClient(user, pass, userIds, terms, locations);
         assertNotNull(test);
     }
 
-    @org.junit.Test
+    @Test
     public void testGetValidEventBus() {
         System.out.println("testGetValidEventBus");
         TwitterClient client = new TwitterClient(user, pass, userIds, terms, locations);
@@ -57,8 +60,8 @@ public class CIDATwitterClientTest {
         assertNotNull(test);
     }
 
-    @org.junit.Test
-    @org.junit.Ignore
+    @Test
+    @Ignore
     public void testTryConnectionWithNormalAuth() {
         System.out.println("testTryConnectionWithNormalAuth");
         TwitterClient client = new TwitterClient(user, pass, userIds, terms, locations);
@@ -67,8 +70,8 @@ public class CIDATwitterClientTest {
         assertTrue(true);
     }
 
-    @org.junit.Test
-    @org.junit.Ignore
+    @Test
+    @Ignore
     public void testTryConnectionWithOAuth() {
         System.out.println("testTryConnectionWithOAuth");
         TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
@@ -77,8 +80,8 @@ public class CIDATwitterClientTest {
         assertTrue(true);
     }
 
-    @org.junit.Test
-    @org.junit.Ignore
+    @Test
+    @Ignore
     public void testTryCreatingMessageLogger() throws InterruptedException {
         System.out.println("testTryCreatingMessageLogger");
         TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
@@ -93,8 +96,8 @@ public class CIDATwitterClientTest {
         assertTrue(true);
     }
 
-    @org.junit.Test
-    @org.junit.Ignore
+    @Test
+    @Ignore
     public void testTryCreatingEventLogger() throws InterruptedException {
         System.out.println("testTryCreatingMessageLogger");
         TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret, userIds, terms, locations);
