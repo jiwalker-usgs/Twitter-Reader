@@ -3,15 +3,15 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
  
-<mapper namespace="gov.usgs.cida.mybatis.mappers.EventMapper">
+<mapper namespace="gov.usgs.cida.mybatis.mappers.TwitterEventMapper">
  
-    <resultMap id="eventResultMap" type="Event" autoMapping="false">
+    <resultMap id="eventResultMap" type="TwitterEvent" autoMapping="false">
         <id property="eventId" column="EVENT_ID" />
         <result property="eventMessage" column="EVENT_MESSAGE" />
         <result property="timestamp" column="EVENT_TIMESTAMP" />
         <association 
             property="eventType" 
-            resultMap="gov.usgs.cida.mybatis.mappers.EventTypeMapper.eventTypeResultMap" 
+            resultMap="gov.usgs.cida.mybatis.mappers.TwitterEventTypeMapper.eventTypeResultMap" 
             column="EVENT_TYPE">
             <id property="eventTypeId" column="EVENT_TYPE_ID" />
             <result property="eventType" column="et.EVENT_TYPE" />
