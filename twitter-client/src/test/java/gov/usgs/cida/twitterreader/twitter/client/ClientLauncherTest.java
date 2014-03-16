@@ -1,6 +1,15 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileAttribute;
+import java.util.Calendar;
+import java.util.Properties;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -13,24 +22,32 @@ import static org.junit.Assert.*;
  * @author isuftin
  */
 public class ClientLauncherTest {
-    
+
+    private File tempWorkDirectory;
+    private String buildDirectory = System.getProperty("props.directory.build", System.getProperty("java.io.tmpdir"));
+    private Properties propertiesFile;
+
     public ClientLauncherTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        tempWorkDirectory = Files.createTempDirectory(new File(buildDirectory).toPath(), "").toFile();
+        FileUtils.copyFileToDirectory(new File("src/main/resources/sample.properties"), tempWorkDirectory);
+        tempWorkDirectory.deleteOnExit();
     }
-    
+
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
+        FileUtils.forceDelete(tempWorkDirectory);
     }
 
     @Test
@@ -41,7 +58,7 @@ public class ClientLauncherTest {
         instance.run(args);
         assertTrue("Client launcher did not hit NPE with null arguments", true);
     }
-    
+
     @Test
     public void testRunWithNoArguments() throws FileNotFoundException {
         System.out.println("testRunWithNoArguments");
@@ -50,7 +67,7 @@ public class ClientLauncherTest {
         instance.run(args);
         assertTrue("Client launcher did not throw back exception", true);
     }
-    
+
     @Test(expected = FileNotFoundException.class)
     public void testRunWithInvalidDirectory() throws FileNotFoundException {
         System.out.println("testRunWithInvalidDirectory");
@@ -58,5 +75,27 @@ public class ClientLauncherTest {
         ClientLauncher instance = new ClientLauncher();
         instance.run(args);
     }
-    
+
+    @Test(expected = FileNotFoundException.class)
+    public void testRunWithInvalidPropertiesPath() throws FileNotFoundException {
+        System.out.println("testRunWithInvalidPropertiesPath");
+        String[] args = new String[]{
+            "-d", tempWorkDirectory.getAbsolutePath(),
+            "-p", "not-a-real.properties"
+        };
+        ClientLauncher instance = new ClientLauncher();
+        instance.run(args);
+    }
+
+    @Test
+    public void testRunWithValidPropertiesPath() throws FileNotFoundException {
+        System.out.println("testRunWithValidPropertiesPath");
+        String[] args = new String[]{
+            "-d", tempWorkDirectory.getAbsolutePath(),
+            "-p", "sample.properties"
+        };
+        ClientLauncher instance = new ClientLauncher();
+        instance.run(args);
+    }
+
 }

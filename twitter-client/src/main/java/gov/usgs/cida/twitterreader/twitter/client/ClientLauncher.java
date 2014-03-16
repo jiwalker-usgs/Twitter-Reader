@@ -15,15 +15,19 @@ import org.kohsuke.args4j.OptionHandlerFilter;
 public class ClientLauncher {
 
     private static CmdLineParser parser;
-    private File baseDirectory;
+    private File baseDirectory = null;
+    private String propertiesFile = null;
+    private File propertiesPath = null;
 
     @Option(name = "-d", usage = "Application Base Directory", metaVar = "String", required = true)
     public void setBaseDirectory(File file) {
         baseDirectory = file;
-    };
+    }
 
     @Option(name = "-p", usage = "Properties File Name", metaVar = "String", depends = {"-d"})
-    private String propertiesFileName;
+    public void setPropertiesFile(String file) {
+        propertiesFile = file;
+    }
 
     @Option(name = "-h", usage = "Print this documentation", required = false, hidden = false)
     private boolean help;
@@ -33,11 +37,19 @@ public class ClientLauncher {
         parser.setUsageWidth(80);
         try {
             parser.parseArgument(args);
-            
+
+            // Check to make sure that the base directory exists
             if (!baseDirectory.exists()) {
                 throw new FileNotFoundException(String.format("Directory at %s does not exist", baseDirectory.getAbsolutePath()));
             }
-            
+
+            if (propertiesFile != null) {
+                propertiesPath = new File(baseDirectory, propertiesFile);
+                if (!propertiesPath.exists()) {
+                    throw new FileNotFoundException(String.format("Properties file at %s does not exist", baseDirectory.getAbsolutePath()));
+                }
+            }
+
         } catch (CmdLineException | NullPointerException ex) {
             if (help) {
                 printUsage(System.out);

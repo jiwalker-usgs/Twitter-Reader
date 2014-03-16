@@ -138,6 +138,12 @@
                 <type>jar</type>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.3</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
                 <groupId>com.twitter</groupId>
                 <artifactId>hbc-twitter4j</artifactId> 
                 <version>1.4.2</version>
