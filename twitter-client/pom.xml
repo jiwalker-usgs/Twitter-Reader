@@ -7,18 +7,34 @@
         <artifactId>twitter-reader</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+    <name>Twitter Client</name>
     <groupId>gov.usgs.cida.twitterreader</groupId>
     <artifactId>twitter-client</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>twitter-client</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
         <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>2.0.26</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>twitter-network-access</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
         </dependency>
     </dependencies>
 </project>
