@@ -1,6 +1,7 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
 import com.twitter.hbc.core.endpoint.Location;
+import gov.usgs.cida.twitter.reader.data.client.QueueParams;
 import gov.usgs.cida.twitter.reader.data.observer.interfaces.IClientObserver;
 import java.util.List;
 
@@ -38,4 +39,24 @@ public interface IClient {
     public IClientObserver addObserver(IClientObserver observer);
 
     public void connect();
+
+    /**
+     * Registers all available observers to listen to TwitterClient
+     */
+    public void registerAllObservers();
+
+    /**
+     * Unregisters all available observers from listening to TwitterClient
+     */
+    public void unregisterAllObservers();
+
+    /**
+     * @param messageQueueParams the messageQueueParams to set
+     */
+    public void setMessageQueueParams(QueueParams messageQueueParams);
+
+    /**
+     * @param eventQueueParams the eventQueueParams to set
+     */
+    public void setEventQueueParams(QueueParams eventQueueParams);
 }

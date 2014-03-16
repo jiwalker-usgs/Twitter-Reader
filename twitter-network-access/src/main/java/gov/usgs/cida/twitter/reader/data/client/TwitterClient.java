@@ -33,6 +33,7 @@ public class TwitterClient extends Observable {
 
     private static Client client = null;
     private static Boolean isConnected = false;
+    private static Boolean isStopped = false;
     private static BlockingQueue<String> messageQueue = null;
     private static BlockingQueue<Event> eventQueue = null;
     private static EventBus eventBus;
@@ -41,9 +42,11 @@ public class TwitterClient extends Observable {
     private final static ScheduledExecutorService messageSes = Executors.newScheduledThreadPool(1);
     private final static ScheduledFuture<TwitterEventRunner> eventFuture = null;
     private final static ScheduledFuture<TwitterMessageRunner> messageFuture = null;
-    private List<Long> userIds = new ArrayList<>();
-    private List<String> terms = new ArrayList<>();
-    private List<Location> locations = new ArrayList<>();
+    private QueueParams eventQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
+    private QueueParams messageQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
+    private final List<Long> userIds = new ArrayList<>();
+    private final List<String> terms = new ArrayList<>();
+    private final List<Location> locations = new ArrayList<>();
 
     /**
      * Thread runnable object that checks the message queue and posts new
@@ -128,11 +131,31 @@ public class TwitterClient extends Observable {
      * Connects the Twitter client to Twitter
      */
     public synchronized void connect() {
-        if (!isConnected) {
+        this.connect(Boolean.FALSE);
+    }
+    
+    /**
+     * Connects the Twitter client to Twitter with the option to automatically 
+     * start queueing
+     *
+     * @param autoStartQueue automatically begin queueing when connected
+     */
+    public synchronized void connect(Boolean autoStartQueue) {
+        if (!isConnected && !isStopped) {
             client.connect();
             isConnected = true;
+
+            if (autoStartQueue) {
+                startQueueing();
+            }
+
             LOGGER.info("Twitter client connecting...");
         }
+    }
+
+    private void startQueueing() {
+        startMessageQueueing(this.eventQueueParams);
+        startEventQueueing(this.eventQueueParams);
     }
 
     /**
@@ -140,7 +163,7 @@ public class TwitterClient extends Observable {
      * and run time
      */
     public void startMessageQueueing() {
-        this.startMessageQueueing(0l, 1l, TimeUnit.MINUTES);
+        this.startMessageQueueing(this.eventQueueParams);
     }
 
     /**
@@ -150,7 +173,10 @@ public class TwitterClient extends Observable {
      * @param period the period between successive executions
      * @param timeUnit the time unit of the initialDelay and period parameters
      */
-    public void startMessageQueueing(Long initialDelay, Long period, TimeUnit timeUnit) {
+    private void startMessageQueueing(QueueParams params) {
+        Long initialDelay = params.getInitialDelay();
+        Long period = params.getPeriod();
+        TimeUnit timeUnit = params.getTimeUnit();
         if (null == messageFuture || messageFuture.isDone() || messageFuture.isCancelled()) {
             messageSes.scheduleAtFixedRate(new TwitterMessageRunner(), initialDelay, period, timeUnit);
             LOGGER.info("Message queueing started");
@@ -172,7 +198,7 @@ public class TwitterClient extends Observable {
      * and run time
      */
     public void startEventQueueing() {
-        startEventQueueing(0l, 1l, TimeUnit.MINUTES);
+        startEventQueueing(this.eventQueueParams);
     }
 
     /**
@@ -182,7 +208,10 @@ public class TwitterClient extends Observable {
      * @param period the period between successive executions
      * @param timeUnit the time unit of the initialDelay and period parameters
      */
-    public void startEventQueueing(Long initialDelay, Long period, TimeUnit timeUnit) {
+    private void startEventQueueing(QueueParams params) {
+        Long initialDelay = params.getInitialDelay();
+        Long period = params.getPeriod();
+        TimeUnit timeUnit = params.getTimeUnit();
         if (null == eventFuture || eventFuture.isDone() || eventFuture.isCancelled()) {
             eventSes.scheduleAtFixedRate(new TwitterEventRunner(), initialDelay, period, timeUnit);
             LOGGER.info("Event queueing started");
@@ -205,12 +234,14 @@ public class TwitterClient extends Observable {
         this.stopMessageQueueing();
         if (client != null) {
             client.stop(waitMillis);
-            client = null;
+            isConnected = false;
+            isStopped = true;
         }
         LOGGER.info("Twitter client stopped");
     }
 
     private Client buildClient(Authentication auth) {
+        Client client;
         messageQueue = new LinkedBlockingQueue<>(100000);
         eventQueue = new LinkedBlockingQueue<>(1000);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
@@ -235,7 +266,8 @@ public class TwitterClient extends Observable {
                 processor(new StringDelimitedProcessor(messageQueue)).
                 eventMessageQueue(eventQueue);
 
-        return cb.build();
+        client = cb.build();
+        return client;
     }
 
     /**
@@ -306,5 +338,19 @@ public class TwitterClient extends Observable {
      */
     public void setLocations(List<Location> locations) {
         Collections.copy(this.locations, locations);
+    }
+
+    /**
+     * @param eventQueueParams the eventQueueParams to set
+     */
+    public void setEventQueueParams(QueueParams eventQueueParams) {
+        this.eventQueueParams = eventQueueParams;
+    }
+
+    /**
+     * @param messageQueueParams the messageQueueParams to set
+     */
+    public void setMessageQueueParams(QueueParams messageQueueParams) {
+        this.messageQueueParams = messageQueueParams;
     }
 }

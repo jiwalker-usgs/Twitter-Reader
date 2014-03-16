@@ -6,13 +6,13 @@ import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
  *
  * @author isuftin
  */
-public class UserPasswordClientConnector implements IAuthTypeClientBuilder{
+public class UserPasswordClientBuilder implements IAuthTypeClientBuilder{
 
     private final String username;
     private final String password;
     private TwitterClient twitterClient;
     
-    private UserPasswordClientConnector() {
+    private UserPasswordClientBuilder() {
         this.username = null;
         this.password = null;
     }
@@ -24,7 +24,7 @@ public class UserPasswordClientConnector implements IAuthTypeClientBuilder{
      * @param password Twitter password
      * {@link TwitterClient()}
      */
-    public UserPasswordClientConnector(String username, String password) {
+    public UserPasswordClientBuilder(String username, String password) {
         this.username = username;
         this.password = password;
     }
