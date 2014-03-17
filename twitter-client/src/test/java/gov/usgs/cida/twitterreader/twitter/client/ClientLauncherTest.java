@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -20,7 +19,7 @@ import static org.junit.Assert.*;
 public class ClientLauncherTest {
 
     private File tempWorkDirectory;
-    private String buildDirectory = System.getProperty("props.directory.build", System.getProperty("java.io.tmpdir"));
+    private final String buildDirectory = System.getProperty("props.directory.build", System.getProperty("java.io.tmpdir"));
 
     public ClientLauncherTest() {
     }
@@ -94,7 +93,7 @@ public class ClientLauncherTest {
     }
 
     @Test
-    public void testRunWithLoggers()  throws FileNotFoundException, IOException {
+    public void testRunWithLoggers() throws FileNotFoundException, IOException {
         System.out.println("testRunWithLoggers");
         String[] args = new String[]{
             "-d", tempWorkDirectory.getAbsolutePath(),
@@ -106,5 +105,27 @@ public class ClientLauncherTest {
         assertTrue(logPath.exists());
         assertTrue(logPath.isDirectory());
     }
-    
+
+    @Test
+    public void testCreateAllLogLevel() throws FileNotFoundException, IOException {
+        System.out.println("testCreateAllLogLevel");
+        String[] args = new String[]{
+            "-d", tempWorkDirectory.getAbsolutePath(),
+            "-log.level", "ALL"
+        };
+        ClientLauncher instance = new ClientLauncher();
+        instance.run(args);
+    }
+
+    @Test
+    public void testCreateAllDebugLevel() throws FileNotFoundException, IOException {
+        System.out.println("testCreateDebugLogLevel");
+        String[] args = new String[]{
+            "-d", tempWorkDirectory.getAbsolutePath(),
+            "-log.level", "DEBUG"
+        };
+        ClientLauncher instance = new ClientLauncher();
+        instance.run(args);
+    }
+
 }
