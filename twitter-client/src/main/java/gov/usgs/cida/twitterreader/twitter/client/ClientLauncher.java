@@ -1,18 +1,18 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.nio.file.attribute.FileAttribute;
 import java.util.Properties;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.OptionHandlerFilter;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -21,34 +21,53 @@ import org.slf4j.LoggerFactory;
  */
 public class ClientLauncher {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClientLauncher.class);
+    private static final Logger packageLogger = (Logger) LoggerFactory.getLogger("gov.usgs.cida.twitterreader.twitter.client");
+    private static Logger logger;
     private static CmdLineParser parser;
     private File baseDirectory = null;
     private String propertiesFile = null;
     private File propertiesPath = null;
     private File logDirectory = null;
-    private boolean useLoggers = false;
-    private Properties properties = new Properties();
+    private final Properties properties = new Properties();
+    private enum LOGLEVEL {
 
-    @Option(name = "-d", usage = "Application Base Directory", metaVar = "String", required = true)
+        ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF
+    };
+
+    @Option(name = "-d",
+            usage = "Application Base Directory",
+            metaVar = "String",
+            required = true)
     public void setBaseDirectory(File file) {
         this.baseDirectory = file;
     }
 
-    @Option(name = "-p", usage = "Properties File Name", metaVar = "String", depends = {"-d"})
+    @Option(name = "-p",
+            usage = "Properties File Name",
+            metaVar = "String",
+            depends = {"-d"})
     public void setPropertiesFile(String file) {
         this.propertiesFile = file;
     }
 
     @Option(name = "-loggers.use",
-            usage = "Use file-based logging to log Twitter messages and events",
-            metaVar = "Boolean")
-    public void setUseLoggers(boolean use) {
-        this.useLoggers = use;
-    }
+            usage = "Use file-based logging to log Twitter messages and events")
+    private boolean useLoggers = false;
 
-    @Option(name = "-h", usage = "Print this documentation", required = false, hidden = false)
+    @Option(name = "-h",
+            usage = "Print this documentation",
+            required = false,
+            hidden = false)
     private boolean help;
+
+    @Option(name = "-loggers.level",
+            depends = "-loggers.use",
+            usage = "Sets the level of logging to be used by loggers")
+    private LOGLEVEL loggersLevel;
+
+    @Option(name = "-log.level",
+            usage = "Sets the level of logging to be used by application logging (default = INFO)")
+    private final LOGLEVEL loggingLevel = LOGLEVEL.INFO;
 
     public void run(String... args) throws FileNotFoundException, IOException {
         parser = new CmdLineParser(this);
@@ -60,11 +79,13 @@ public class ClientLauncher {
             if (!baseDirectory.exists()) {
                 throw new FileNotFoundException(String.format("Directory at %s does not exist", baseDirectory.getAbsolutePath()));
             }
-            
+
+            initializeLogging();
+
             if (propertiesFile != null) {
                 processPropertiesFile();
             }
-            
+
             if (useLoggers) {
                 logDirectory = new File(baseDirectory, "logs");
                 prepareLoggingDirectory();
@@ -87,6 +108,7 @@ public class ClientLauncher {
 
     private void printUsage(PrintStream stream) {
         stream.println("java Client [options...] arguments...");
+        stream.println("-------------------------------------");
         parser.printUsage(stream);
 
         // print option sample. This is useful some time
@@ -104,7 +126,7 @@ public class ClientLauncher {
 
         useLoggers = Boolean.parseBoolean(properties.getProperty("loggers.use", "false"));
     }
-    
+
     private void prepareLoggingDirectory() throws IOException {
         if (!baseDirectory.exists()) {
             Files.createDirectory(baseDirectory.toPath());
@@ -113,5 +135,13 @@ public class ClientLauncher {
         if (!logDirectory.exists()) {
             Files.createDirectory(logDirectory.toPath());
         }
+    }
+
+    private void initializeLogging() {
+        // Set logging level and appenders for the package and instantiate 
+        // the logger for this class
+        packageLogger.setLevel(Level.toLevel(loggingLevel.name()));
+        logger = (Logger) LoggerFactory.getLogger(ClientLauncher.class);
+        logger.info("Logger Set To {}", logger.getEffectiveLevel());
     }
 }
