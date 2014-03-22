@@ -7,7 +7,7 @@
             <pattern>%d{HH:mm:ss.SSS} [%t] Twitter Client %5p %logger{20} - %m%n</pattern>
         </encoder>
     </appender>
-    <root level="DEBUG">
+    <root level="TRACE">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

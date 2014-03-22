@@ -2,14 +2,14 @@ package gov.usgs.cida.twitter.reader.data.observer.interfaces;
 
 import com.google.common.eventbus.Subscribe;
 import com.twitter.hbc.core.event.Event;
-import java.util.Observable;
 
 /**
  *
  * @author isuftin
  */
 public interface IClientObserver {
-        /**
+
+    /**
      * Handles a new incoming event
      *
      * @param event

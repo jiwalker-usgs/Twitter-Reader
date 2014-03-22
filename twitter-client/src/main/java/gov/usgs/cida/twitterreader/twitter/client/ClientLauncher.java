@@ -2,6 +2,10 @@ package gov.usgs.cida.twitterreader.twitter.client;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import gov.usgs.cida.twitterreader.commons.logging.LoggerLevel;
+import gov.usgs.cida.twitterreader.commons.logging.LoggerType;
+import gov.usgs.cida.twitterreader.commons.logging.TwitterAppenderFactory;
+import gov.usgs.cida.twitterreader.commons.logging.TwitterLoggerContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -29,10 +33,13 @@ public class ClientLauncher {
     private File propertiesPath = null;
     private File logDirectory = null;
     private final Properties properties = new Properties();
-    private enum LOGLEVEL {
+    private final String loggingEncoderPattern = "%d{HH:mm:ss.SSS} [%t] %5p %logger{20} - %m%n";
 
-        ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF
-    };
+    @Option(name = "-h",
+            usage = "Print this documentation",
+            required = false,
+            hidden = false)
+    private boolean help;
 
     @Option(name = "-d",
             usage = "Application Base Directory",
@@ -50,24 +57,14 @@ public class ClientLauncher {
         this.propertiesFile = file;
     }
 
-    @Option(name = "-loggers.use",
+    @Option(name = "-logging.use",
             usage = "Use file-based logging to log Twitter messages and events")
     private boolean useLoggers = false;
 
-    @Option(name = "-h",
-            usage = "Print this documentation",
-            required = false,
-            hidden = false)
-    private boolean help;
-
-    @Option(name = "-loggers.level",
-            depends = "-loggers.use",
-            usage = "Sets the level of logging to be used by loggers")
-    private LOGLEVEL loggersLevel;
-
-    @Option(name = "-log.level",
-            usage = "Sets the level of logging to be used by application logging (default = INFO)")
-    private final LOGLEVEL loggingLevel = LOGLEVEL.INFO;
+    @Option(name = "-logging.level",
+            depends = "-logging.use",
+            usage = "Sets the level of logging to be used by loggers (default = INFO)")
+    private LoggerLevel loggingLevel = LoggerLevel.INFO;
 
     public void run(String... args) throws FileNotFoundException, IOException {
         parser = new CmdLineParser(this);
@@ -80,7 +77,11 @@ public class ClientLauncher {
                 throw new FileNotFoundException(String.format("Directory at %s does not exist", baseDirectory.getAbsolutePath()));
             }
 
-            initializeLogging();
+            // Set logging level and appenders for the package and instantiate 
+            // the logger for this class
+            packageLogger.setLevel(Level.toLevel(loggingLevel.name()));
+            logger = (Logger) LoggerFactory.getLogger(ClientLauncher.class);
+            logger.info("Logger Set To {}", logger.getEffectiveLevel());
 
             if (propertiesFile != null) {
                 processPropertiesFile();
@@ -89,6 +90,16 @@ public class ClientLauncher {
             if (useLoggers) {
                 logDirectory = new File(baseDirectory, "logs");
                 prepareLoggingDirectory();
+                
+                // We are using loggers so I need to create a file logger for 
+                // this class, get its appender and attach it to the current logger
+                // so all logs will go to console and file
+                TwitterLoggerContext tlc = new TwitterLoggerContext(logger.getName());
+                tlc.setOutputDirectory(logDirectory);
+                tlc.setLoggerType(LoggerType.FILE);
+                
+                logger.addAppender(new TwitterAppenderFactory(tlc).createAppender());
+                logger.debug("File appender added");
             }
 
         } catch (CmdLineException | NullPointerException ex) {
@@ -135,13 +146,5 @@ public class ClientLauncher {
         if (!logDirectory.exists()) {
             Files.createDirectory(logDirectory.toPath());
         }
-    }
-
-    private void initializeLogging() {
-        // Set logging level and appenders for the package and instantiate 
-        // the logger for this class
-        packageLogger.setLevel(Level.toLevel(loggingLevel.name()));
-        logger = (Logger) LoggerFactory.getLogger(ClientLauncher.class);
-        logger.info("Logger Set To {}", logger.getEffectiveLevel());
     }
 }
