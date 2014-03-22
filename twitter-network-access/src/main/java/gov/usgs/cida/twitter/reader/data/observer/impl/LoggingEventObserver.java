@@ -23,8 +23,6 @@ public class LoggingEventObserver extends EventObserver {
         this.logger = logger;
     }
     
-    
-    
     /**
      * @see EventObserver#register() 
      */

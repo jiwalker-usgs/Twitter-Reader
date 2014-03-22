@@ -133,9 +133,9 @@ public class TwitterClient extends Observable {
     public synchronized void connect() {
         this.connect(Boolean.FALSE);
     }
-    
+
     /**
-     * Connects the Twitter client to Twitter with the option to automatically 
+     * Connects the Twitter client to Twitter with the option to automatically
      * start queueing
      *
      * @param autoStartQueue automatically begin queueing when connected
@@ -154,7 +154,7 @@ public class TwitterClient extends Observable {
     }
 
     private void startQueueing() {
-        startMessageQueueing(this.eventQueueParams);
+        startMessageQueueing(this.messageQueueParams);
         startEventQueueing(this.eventQueueParams);
     }
 
@@ -163,7 +163,7 @@ public class TwitterClient extends Observable {
      * and run time
      */
     public void startMessageQueueing() {
-        this.startMessageQueueing(this.eventQueueParams);
+        this.startMessageQueueing(this.messageQueueParams);
     }
 
     /**
@@ -241,7 +241,7 @@ public class TwitterClient extends Observable {
     }
 
     private Client buildClient(Authentication auth) {
-        Client client;
+        Client result;
         messageQueue = new LinkedBlockingQueue<>(100000);
         eventQueue = new LinkedBlockingQueue<>(1000);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
@@ -266,8 +266,8 @@ public class TwitterClient extends Observable {
                 processor(new StringDelimitedProcessor(messageQueue)).
                 eventMessageQueue(eventQueue);
 
-        client = cb.build();
-        return client;
+        result = cb.build();
+        return result;
     }
 
     /**

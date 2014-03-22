@@ -1,16 +1,21 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -97,7 +102,7 @@ public class ClientLauncherTest {
         System.out.println("testRunWithLoggers");
         String[] args = new String[]{
             "-d", tempWorkDirectory.getAbsolutePath(),
-            "-loggers.use"
+            "-logging.use"
         };
         ClientLauncher instance = new ClientLauncher();
         instance.run(args);
@@ -111,7 +116,8 @@ public class ClientLauncherTest {
         System.out.println("testCreateAllLogLevel");
         String[] args = new String[]{
             "-d", tempWorkDirectory.getAbsolutePath(),
-            "-log.level", "ALL"
+            "-logging.level", "ALL",
+            "-logging.use"
         };
         ClientLauncher instance = new ClientLauncher();
         instance.run(args);
@@ -122,10 +128,30 @@ public class ClientLauncherTest {
         System.out.println("testCreateDebugLogLevel");
         String[] args = new String[]{
             "-d", tempWorkDirectory.getAbsolutePath(),
-            "-log.level", "DEBUG"
+            "-logging.level", "DEBUG",
+            "-logging.use"
         };
         ClientLauncher instance = new ClientLauncher();
         instance.run(args);
+    }
+
+    @Test
+    public void testUseFilebasedLogging() throws FileNotFoundException, IOException {
+        System.out.println("testUseFilebasedLogging");
+        String[] args = new String[]{
+            "-d", tempWorkDirectory.getAbsolutePath(),
+            "-logging.level", "DEBUG",
+            "-logging.use"
+        };
+        ClientLauncher instance = new ClientLauncher();
+        instance.run(args);
+        File logDirectory = new File(tempWorkDirectory, "logs");
+        FileFilter ff = new SuffixFileFilter("log");
+        File[] files = logDirectory.listFiles(ff);
+        assertThat(files.length, is(1));
+        List<String> fileLines = FileUtils.readLines(files[0]);
+        assertThat(fileLines.isEmpty(), is(Boolean.FALSE));
+        assertThat(fileLines.get(0), containsString("DEBUG"));
     }
 
 }

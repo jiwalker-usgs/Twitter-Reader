@@ -93,6 +93,7 @@
         <module>twitter-data-access</module>
         <module>twitter-network-access</module>
         <module>twitter-client</module>
+        <module>twitter-commons</module>
     </modules>
   
     <dependencyManagement>

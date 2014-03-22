@@ -17,16 +17,19 @@ public abstract class EventObserver implements IClientObserver {
      * @param event
      */
     @Subscribe
+    @Override
     public abstract void handleEvent(Event event);
 
     /**
      * Register this object to the event bus
      */
+    @Override
     public abstract void register();
 
     /**
      * Unregister this object from the event bus
      */
+    @Override
     public abstract void unregister();
 
 }
