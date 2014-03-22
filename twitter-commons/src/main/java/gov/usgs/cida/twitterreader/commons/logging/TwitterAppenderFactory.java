@@ -10,6 +10,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import java.io.File;
+import java.io.IOException;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -26,7 +27,7 @@ public class TwitterAppenderFactory {
     private final LoggerContext context;
     private final File outputDirectory;
 
-    public TwitterAppenderFactory(TwitterLoggerContext context) {
+    public TwitterAppenderFactory(TwitterLoggerContext context) throws IOException {
         if (context == null) {
             throw new NullPointerException("LoggerContext can not be null");
         }
@@ -41,6 +42,10 @@ public class TwitterAppenderFactory {
             this.context = new LoggerContext();
         } else {
             this.context = twitterLoggerContext.getLoggerContext();
+        }
+        
+        if (!this.outputDirectory.exists()) {
+            throw new IOException(String.format("Output directory %s does not exist", outputDirectory.getPath()));
         }
     }
 

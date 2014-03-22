@@ -64,7 +64,7 @@ public class ClientLauncher {
     @Option(name = "-logging.level",
             depends = "-logging.use",
             usage = "Sets the level of logging to be used by loggers (default = INFO)")
-    private LoggerLevel loggingLevel = LoggerLevel.INFO;
+    private LoggerLevel loggerLevel = LoggerLevel.INFO;
 
     public void run(String... args) throws FileNotFoundException, IOException {
         parser = new CmdLineParser(this);
@@ -79,7 +79,7 @@ public class ClientLauncher {
 
             // Set logging level and appenders for the package and instantiate 
             // the logger for this class
-            packageLogger.setLevel(Level.toLevel(loggingLevel.name()));
+            packageLogger.setLevel(Level.toLevel(loggerLevel.name()));
             logger = (Logger) LoggerFactory.getLogger(ClientLauncher.class);
             logger.info("Logger Set To {}", logger.getEffectiveLevel());
 
