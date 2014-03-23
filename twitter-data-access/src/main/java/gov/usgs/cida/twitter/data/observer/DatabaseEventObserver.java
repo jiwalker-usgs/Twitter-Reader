@@ -1,4 +1,4 @@
-package gov.usgs.cida.twitter.reader.data.observer.impl;
+package gov.usgs.cida.twitter.data.observer;
 
 import com.google.common.eventbus.Subscribe;
 import com.twitter.hbc.core.event.Event;
@@ -6,6 +6,8 @@ import gov.usgs.cida.twitter.data.dao.TwitterEventDAO;
 import gov.usgs.cida.twitter.data.model.TwitterEvent;
 import gov.usgs.cida.twitter.data.model.TwitterEventType;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
+import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
+import gov.usgs.cida.twitterreader.commons.observer.EventObserver;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +21,14 @@ public class DatabaseEventObserver extends EventObserver {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DatabaseEventObserver.class);
     private SqlSessionFactory sessionFactory = null;
-    
-    public DatabaseEventObserver() {}
+
+    public DatabaseEventObserver() {
+    }
+
     public DatabaseEventObserver(SqlSessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
-    
+
     @Subscribe
     @Override
     public void handleEvent(Event event) {
@@ -36,20 +40,24 @@ public class DatabaseEventObserver extends EventObserver {
         } else {
             dao = new TwitterEventDAO();
         }
-         
+
         dao.insertEvent(twitterEvent);
     }
 
+    /**
+     * @see ClientObserver#register()
+     */
     @Override
     public void register() {
-        TwitterClient.getEventBus().register(this);
-        LOGGER.info("LoggingEventObserver registered");
+        TwitterQueues.registerObserver(this);
     }
 
+    /**
+     * @see ClientObserver#unregister()
+     */
     @Override
     public void unregister() {
-        TwitterClient.getEventBus().unregister(this);
-        LOGGER.info("LoggingEventObserver unregistered");
+        TwitterQueues.unregisterObserver(this);
     }
 
 }

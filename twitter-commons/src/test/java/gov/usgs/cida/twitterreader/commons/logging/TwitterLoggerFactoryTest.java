@@ -11,7 +11,6 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -50,14 +49,14 @@ public class TwitterLoggerFactoryTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testCreateLoggerUsingNullLoggerContext() {
+    public void testCreateLoggerUsingNullLoggerContext() throws IOException {
         System.out.println("testCreateLoggerUsingNullLoggerContext");
         Logger result = new TwitterLoggerFactory(null).createLogger();
-        fail("Expected NullPointerException");
+        result.info("Test");
     }
 
     @Test
-    public void testCreateConsoleLoggerUsingBaseLoggerContext() {
+    public void testCreateConsoleLoggerUsingBaseLoggerContext() throws IOException {
         System.out.println("testCreateConsoleLoggerUsingBaseLoggerContext");
         TwitterLoggerContext lc = new TwitterLoggerContext("Test Console Logger");
         Logger result = new TwitterLoggerFactory(lc).createLogger();
@@ -67,7 +66,7 @@ public class TwitterLoggerFactoryTest {
     }
 
     @Test
-    public void testCreateFileLogger() {
+    public void testCreateFileLogger() throws IOException {
         System.out.println("testCreateFileLogger");
         TwitterLoggerContext lc = new TwitterLoggerContext(this.getClass());
         lc.setLoggerType(LoggerType.FILE);
@@ -97,6 +96,17 @@ public class TwitterLoggerFactoryTest {
         assertThat(fileLines.isEmpty(), is(Boolean.FALSE));
         assertThat(fileLines.get(0), containsString("INFO"));
         assertThat(fileLines.get(0), containsString("Test Log!"));
+    }
+
+    @Test(expected = IOException.class)
+    public void testCreateFileLoggerWithBogusOutputDir() throws IOException {
+        System.out.println("testCreateFileLoggerWithBogusOutputDir");
+        File bogusOutputDirectory = new File("/wouldnt/it/be/funny/if/this/did/exist");
+        TwitterLoggerContext lc = new TwitterLoggerContext(this.getClass());
+        lc.setLoggerType(LoggerType.FILE);
+        lc.setOutputDirectory(bogusOutputDirectory);
+        Logger result = new TwitterLoggerFactory(lc).createLogger();
+        result.info("Test Log!");
     }
 
 }

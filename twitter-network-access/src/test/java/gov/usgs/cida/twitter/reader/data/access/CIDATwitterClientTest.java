@@ -1,16 +1,15 @@
 package gov.usgs.cida.twitter.reader.data.access;
 
-import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
-import com.google.common.collect.Lists;
-import com.google.common.eventbus.EventBus;
 import com.twitter.hbc.core.endpoint.Location;
-import gov.usgs.cida.twitter.reader.data.observer.impl.LoggingEventObserver;
-import gov.usgs.cida.twitter.reader.data.observer.impl.LoggingMessageObserver;
+import gov.usgs.cida.twitter.reader.data.client.ClientContext;
+import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
+import gov.usgs.cida.twitter.reader.data.client.TwitterClientBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -25,15 +24,15 @@ public class CIDATwitterClientTest {
     private static String consumerSecret = "test";
     private static String token = "test";
     private static String secret = "test";
-    private static List<Long> userIds = Lists.newArrayList(467664169l);
+    private static List<Long> userIds = new ArrayList<>();
     private static List<String> terms = null;
     private static List<Location> locations = null;
 
     public CIDATwitterClientTest() {
     }
 
-    @BeforeClass
-    public static void beforeClass() {
+    @Before
+    public void before() {
         user = "";
         pass = "";
         consumerKey = "";
@@ -42,77 +41,111 @@ public class CIDATwitterClientTest {
         secret = "";
         userIds = new ArrayList<>();
         terms = new ArrayList<>();
-        locations = new ArrayList<>();;
+        locations = new ArrayList<>();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildClientUsingNoContext() {
+        System.out.println("testBuildClientUsingNoContext");
+        TwitterClientBuilder builder = new TwitterClientBuilder();
+        builder.build();
+        fail("Expecting IllegalArgumentException");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildClientUsingNullContext() {
+        System.out.println("testBuildClientUsingNullContext");
+        TwitterClientBuilder builder = new TwitterClientBuilder().
+                setContext(null);
+        builder.build();
+        fail("Expecting IllegalArgumentException");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildClientUsingBlankUserNameAndPass() {
+        System.out.println("testBuildClientUsingBlankUserNameAndPass");
+        ClientContext context = new ClientContext(user, pass);
+        TwitterClientBuilder builder = new TwitterClientBuilder().
+                setContext(context);
+        builder.build();
+        fail("Expecting IllegalArgumentException");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildClientUsingNullUserNameAndPass() {
+        System.out.println("testBuildClientUsingNullUserNameAndPass");
+        ClientContext context = new ClientContext(null, null);
+        TwitterClientBuilder builder = new TwitterClientBuilder().
+                setContext(context);
+        builder.build();
+        fail("Expecting IllegalArgumentException");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildClientUsingBlankOAuthCredentials() {
+        System.out.println("testBuildClientUsingBlankOAuthCredentials");
+        ClientContext context = new ClientContext(consumerKey, consumerSecret, token, secret);
+        TwitterClientBuilder builder = new TwitterClientBuilder().
+                setContext(context);
+        builder.build();
+        fail("Expecting IllegalArgumentException");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildClientUsingNullOAuthCredentials() {
+        System.out.println("testBuildClientUsingNullOAuthCredentials");
+        ClientContext context = new ClientContext(null, null, null, null);
+        TwitterClientBuilder builder = new TwitterClientBuilder().
+                setContext(context);
+        builder.build();
+        fail("Expecting IllegalArgumentException");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildClientUsingUsernameAndPassUsingUnpopulatedContext() {
+        System.out.println("testBuildClientUsingNullOAuthCredentials");
+        user = "test";
+        pass = "test";
+        ClientContext context = new ClientContext(user, pass);
+        TwitterClientBuilder builder = new TwitterClientBuilder().
+                setContext(context);
+        builder.build();
+        fail("Expecting IllegalArgumentException");
     }
 
     @Test
-    public void testClientCreationUsingUsernameAndPass() {
-        System.out.println("testClientCreation");
-        TwitterClient test = new TwitterClient(user, pass);
-        assertNotNull(test);
+    public void successfullyBuildClientUsingUsernameAndPassUsingPopulatedContext() {
+        System.out.println("testBuildClientUsingNullOAuthCredentials");
+        user = "test";
+        pass = "test";
+        userIds.add(Long.MIN_VALUE);
+
+        ClientContext context = new ClientContext(user, pass);
+        context.setUserIds(userIds);
+
+        TwitterClientBuilder builder = new TwitterClientBuilder().
+                setContext(context);
+        TwitterClient client = builder.build();
+
+        assertThat(client, is(notNullValue()));
     }
 
     @Test
-    public void testGetValidEventBus() {
-        System.out.println("testGetValidEventBus");
-        TwitterClient client = new TwitterClient(user, pass);
-        EventBus test = TwitterClient.getEventBus();
-        assertNotNull(test);
-    }
+    public void successfullyBuildClientUsingOAuthUsingPopulatedContext() {
+        System.out.println("successfullyBuildClientUsingOAuthUsingPopulatedContext");
+        consumerKey = "test";
+        consumerSecret = "test";
+        token = "test";
+        secret = "test";
+        userIds.add(Long.MIN_VALUE);
 
-    @Test
-    @Ignore
-    public void testTryConnectionWithNormalAuth() {
-        System.out.println("testTryConnectionWithNormalAuth");
-        TwitterClient client = new TwitterClient(user, pass);
-        client.connect();
-        client.stop(0);
-        assertTrue(true);
-    }
+        ClientContext context = new ClientContext(consumerKey, consumerSecret, token, secret);
+        context.setUserIds(userIds);
 
-    @Test
-    @Ignore
-    public void testTryConnectionWithOAuth() {
-        System.out.println("testTryConnectionWithOAuth");
-        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret);
-        client.connect();
-        client.stop(0);
-        assertTrue(true);
-    }
+        TwitterClientBuilder builder = new TwitterClientBuilder().
+                setContext(context);
+        TwitterClient client = builder.build();
 
-    @Test
-    @Ignore
-    public void testTryCreatingMessageLogger() throws InterruptedException {
-        System.out.println("testTryCreatingMessageLogger");
-        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret);
-        client.connect();
-        LoggingMessageObserver lmo = new LoggingMessageObserver();
-        lmo.register();
-        client.startMessageQueueing();
-        synchronized (this) {
-            wait(30000l);
-        }
-        client.stop(0);
-        assertTrue(true);
+        assertThat(client, is(notNullValue()));
     }
-
-    @Test
-    @Ignore
-    public void testTryCreatingEventLogger() throws InterruptedException {
-        System.out.println("testTryCreatingMessageLogger");
-        TwitterClient client = new TwitterClient(consumerKey, consumerSecret, token, secret);
-        
-        LoggingEventObserver leo = new LoggingEventObserver();
-        leo.register();
-        client.startEventQueueing();
-        
-        client.connect();
-        
-        synchronized (this) {
-            wait(30000l);
-        }
-        client.stop(0);
-        assertTrue(true);
-    }
-
 }

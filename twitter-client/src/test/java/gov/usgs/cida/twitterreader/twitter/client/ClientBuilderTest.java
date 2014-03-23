@@ -1,7 +1,8 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
-import gov.usgs.cida.twitter.reader.data.client.QueueParams;
-import gov.usgs.cida.twitter.reader.data.observer.impl.LoggingEventObserver;
+import com.google.common.collect.Lists;
+import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
+import gov.usgs.cida.twitterreader.commons.observer.LoggingEventObserver;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -48,6 +49,7 @@ public class ClientBuilderTest {
     @Test
     public void testBuild() {
         System.out.println("testBuild");
+        ssoBuilder.setTerms(Lists.asList("term", new String[]{"test2"}));
         ClientBuilder instance = new ClientBuilder(ssoBuilder);
         IClient test = instance.build();
         assertThat(test, is(notNullValue()));
@@ -56,6 +58,7 @@ public class ClientBuilderTest {
     @Test
     public void testBuildWithObservers() {
         System.out.println("testBuildWithObservers");
+        ssoBuilder.setTerms(Lists.asList("term", new String[]{"test2"}));
         ClientBuilder instance = new ClientBuilder(ssoBuilder)
                 .addClientObserver(new LoggingEventObserver());
         IClient test = instance.build();
@@ -63,10 +66,11 @@ public class ClientBuilderTest {
         assertThat(test.getObservers().size(), is(1));
         assertThat(test.getObservers().get(0), is(instanceOf(LoggingEventObserver.class)));
     }
-    
+
     @Test
     public void testBuildWithQueueParams() {
         System.out.println("testBuildWithQueueParams");
+        ssoBuilder.setTerms(Lists.asList("term", new String[]{"test2"}));
         ClientBuilder builder = new ClientBuilder(ssoBuilder);
         builder.setEventQueueParams(new QueueParams(0l, 0l, TimeUnit.MINUTES));
         builder.setMessageQueueParams(new QueueParams(0l, 0l, TimeUnit.MINUTES));

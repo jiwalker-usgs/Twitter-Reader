@@ -1,23 +1,17 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
-import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
+import com.twitter.hbc.core.endpoint.Location;
+import gov.usgs.cida.twitter.reader.data.client.ClientContext;
+import java.util.List;
 
 /**
  *
  * @author isuftin
  */
-public class SingleSignonClientBuilder implements IAuthTypeClientBuilder{
+public class SingleSignonClientBuilder extends AbstractAuthTypeClientBuilder {
 
-    private final String consumerKey;
-    private final String consumerSecret;
-    private final String token;
-    private final String secret;
-    
     private SingleSignonClientBuilder() {
-        this.consumerKey = null;
-        this.consumerSecret = null;
-        this.token = null;
-        this.secret = null;
+        this.setContext(null);
     }
 
     /**
@@ -29,14 +23,36 @@ public class SingleSignonClientBuilder implements IAuthTypeClientBuilder{
      * @param secret Twitter Access token secret
      */
     public SingleSignonClientBuilder(String consumerKey, String consumerSecret, String token, String secret) {
-        this.consumerKey = consumerKey;
-        this.consumerSecret = consumerSecret;
-        this.token = token;
-        this.secret = secret;
+        this.setContext(new ClientContext(consumerKey, consumerSecret, token, secret));
     }
 
+    /**
+     * @param locations the locations to set
+     * @return
+     */
     @Override
-    public TwitterClient buildTwitterClient() {
-       return new TwitterClient(consumerKey, consumerSecret, token, secret);
+    public SingleSignonClientBuilder setLocations(List<Location> locations) {
+        this.getContext().setLocations(locations);
+        return this;
+    }
+
+    /**
+     * @param terms the terms to set
+     * @return
+     */
+    @Override
+    public SingleSignonClientBuilder setTerms(List<String> terms) {
+        this.getContext().setTerms(terms);
+        return this;
+    }
+
+    /**
+     * @param userIds the userIds to set
+     * @return
+     */
+    @Override
+    public SingleSignonClientBuilder setUserIds(List<Long> userIds) {
+        this.getContext().setUserIds(userIds);
+        return this;
     }
 }

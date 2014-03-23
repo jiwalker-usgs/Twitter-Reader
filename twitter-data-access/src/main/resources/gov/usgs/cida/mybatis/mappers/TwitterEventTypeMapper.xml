@@ -13,22 +13,22 @@
     
     <select id="getAll" resultMap="eventTypeResultMap">
         SELECT
-            EVENT_TYPE_ID,
-            EVENT_TYPE,
-            EVENT_DESCRIPTION
+        EVENT_TYPE_ID,
+        EVENT_TYPE,
+        EVENT_DESCRIPTION
         FROM 
-            EVENT_TYPE
+        EVENT_TYPE
     </select>
  
     <select id="getByEventTypeId" parameterType="int" resultMap="eventTypeResultMap">
         SELECT
-            EVENT_TYPE_ID,
-            EVENT_TYPE,
-            EVENT_DESCRIPTION
+        EVENT_TYPE_ID,
+        EVENT_TYPE,
+        EVENT_DESCRIPTION
         FROM 
-            EVENT_TYPE
+        EVENT_TYPE
         WHERE
-            EVENT_TYPE_ID = #{id}
+        EVENT_TYPE_ID = #{id}
     </select>
  
 </mapper>

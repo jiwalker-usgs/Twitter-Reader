@@ -1,9 +1,9 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
 import com.twitter.hbc.core.endpoint.Location;
-import gov.usgs.cida.twitter.reader.data.client.QueueParams;
+import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
-import gov.usgs.cida.twitter.reader.data.observer.interfaces.IClientObserver;
+import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,11 +14,11 @@ import java.util.List;
  */
 public class ClientImpl implements IClient {
 
-    private TwitterClient client;
+    private final TwitterClient client;
+    private final List<IClientObserver> observers = new ArrayList<>();
     private List<Long> userIds;
     private List<String> terms;
     private List<Location> locations;
-    private List<IClientObserver> observers = new ArrayList<>();
     private QueueParams eventQueueParams = null;
     private QueueParams messageQueueParams = null;
 
@@ -64,7 +64,7 @@ public class ClientImpl implements IClient {
 
     @Override
     public void connect() {
-        client.connect();
+        client.start();
     }
 
     @Override

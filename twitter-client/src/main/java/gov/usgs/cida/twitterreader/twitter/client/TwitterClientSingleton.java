@@ -8,15 +8,17 @@ import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
  * @author isuftin
  */
 public class TwitterClientSingleton {
+
     private static TwitterClient twitterClient = null;
-    
-    private TwitterClientSingleton() {}
-    
+
+    private TwitterClientSingleton() {
+    }
+
     final static TwitterClient getTwitterClient(IAuthTypeClientBuilder builder) {
         if (twitterClient == null) {
             twitterClient = builder.buildTwitterClient();
         }
-        
+
         return twitterClient;
     }
 }

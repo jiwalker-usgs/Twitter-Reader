@@ -4,7 +4,7 @@ import com.twitter.hbc.core.event.Event;
 import com.twitter.hbc.core.event.EventType;
 import gov.usgs.cida.twitter.data.model.TwitterEvent;
 import gov.usgs.cida.twitter.data.model.TwitterEventType;
-import gov.usgs.cida.twitter.reader.data.observer.impl.DatabaseEventObserver;
+import gov.usgs.cida.twitter.data.observer.DatabaseEventObserver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -72,12 +72,12 @@ public class DatabaseEventObserverTest {
         Class.forName(driver).newInstance();
 
         conn = DriverManager.getConnection("jdbc:" + dbType + "://127.0.0.1:" + port + "/" + schema + ";create=true", "test", "test");
-        
+
         Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
         liquibase = new Liquibase("src/main/resources/liquibase/changelogs/create-table-parent-changeLog.xml", new FileSystemResourceAccessor(), database);
         liquibase.dropAll();
         liquibase.update(contexts);
-        
+
         try (InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml")) {
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, "integration-test");
         }
@@ -102,7 +102,7 @@ public class DatabaseEventObserverTest {
     @Test
     public void testHandleEvent() {
         System.out.println("testHandleEvent");
-        
+
         DatabaseEventObserver observer = new DatabaseEventObserver(sqlSessionFactory);
         observer.handleEvent(new Event(EventType.CONNECTED));
         List<TwitterEvent> result = instance.getAll();

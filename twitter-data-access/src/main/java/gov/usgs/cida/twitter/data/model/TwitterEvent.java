@@ -11,7 +11,7 @@ import java.util.Date;
  * @author isuftin
  */
 public class TwitterEvent implements Serializable {
-    
+
     private static final long serialVersionUID = 5140178149793574673L;
 
     private BigDecimal eventId;
@@ -19,17 +19,18 @@ public class TwitterEvent implements Serializable {
     private String eventMessage;
     private Timestamp timestamp;
 
-    public TwitterEvent() {}
-    
+    public TwitterEvent() {
+    }
+
     public TwitterEvent(TwitterEventType eventType, String eventMessage) {
         this(eventType, eventMessage, new Timestamp(new Date().getTime()));
     }
-    
+
     public TwitterEvent(TwitterEventType eventType, String eventMessage, Timestamp timestamp) {
         this.eventType = eventType;
         this.eventMessage = eventMessage;
     }
-    
+
     /**
      * Provides a String representation of this object
      *

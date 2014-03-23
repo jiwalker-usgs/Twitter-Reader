@@ -1,8 +1,8 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
 import com.twitter.hbc.core.endpoint.Location;
-import gov.usgs.cida.twitter.reader.data.client.QueueParams;
-import gov.usgs.cida.twitter.reader.data.observer.interfaces.IClientObserver;
+import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
+import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
 import java.util.List;
 
 /**

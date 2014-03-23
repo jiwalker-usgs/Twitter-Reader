@@ -21,7 +21,7 @@ public class TwitterEventTypeTest {
         assertThat(result, startsWith(startsWith));
         assertThat(result, containsString(endsWith));
     }
-    
+
     @Test
     public void testToStringOnNonEmptyTwitterEventType() {
         System.out.println("testToStringOnNonEmptyTwitterEventType");
@@ -30,7 +30,7 @@ public class TwitterEventTypeTest {
         String result = instance.toString();
         assertThat(result, containsString(expResult));
     }
-    
+
     @Test
     public void testCreateTwitterEventTypeUsingEventType() {
         System.out.println("testToStringOnNonEmptyTwitterEventType");
@@ -39,5 +39,5 @@ public class TwitterEventTypeTest {
         String result = instance.toString();
         assertThat(result, containsString(expResult));
     }
-    
+
 }
