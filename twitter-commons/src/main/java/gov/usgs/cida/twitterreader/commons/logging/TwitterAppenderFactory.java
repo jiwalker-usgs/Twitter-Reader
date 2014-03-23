@@ -44,7 +44,7 @@ public class TwitterAppenderFactory {
             this.context = twitterLoggerContext.getLoggerContext();
         }
         
-        if (!this.outputDirectory.exists()) {
+        if (this.type == LoggerType.FILE && !this.outputDirectory.exists()) {
             throw new IOException(String.format("Output directory %s does not exist", outputDirectory.getPath()));
         }
     }

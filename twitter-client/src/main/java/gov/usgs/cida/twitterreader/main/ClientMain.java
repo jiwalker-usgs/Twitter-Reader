@@ -1,5 +1,6 @@
-package gov.usgs.cida.twitterreader.twitter.client;
+package gov.usgs.cida.twitterreader.main;
 
+import gov.usgs.cida.twitterreader.twitter.client.ClientLauncher;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 

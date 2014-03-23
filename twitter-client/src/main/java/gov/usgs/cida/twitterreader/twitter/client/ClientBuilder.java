@@ -1,11 +1,10 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
-import gov.usgs.cida.twitter.reader.data.client.QueueParams;
+import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
-import gov.usgs.cida.twitter.reader.data.observer.interfaces.IClientObserver;
+import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ServiceConfigurationError;
 
 /**
  * Builder class to help create clients
@@ -30,12 +29,12 @@ public class ClientBuilder {
         }
         this.builder = builder;
     }
-    
+
     public ClientBuilder setBuilder(IAuthTypeClientBuilder builder) {
         if (builder != null) {
             this.builder = builder;
         }
-        
+
         return this;
     }
 

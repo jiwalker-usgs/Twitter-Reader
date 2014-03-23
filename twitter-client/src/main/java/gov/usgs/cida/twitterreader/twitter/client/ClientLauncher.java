@@ -2,6 +2,9 @@ package gov.usgs.cida.twitterreader.twitter.client;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
+import gov.usgs.cida.twitterreader.commons.observer.LoggingEventObserver;
+import gov.usgs.cida.twitterreader.commons.observer.LoggingMessageObserver;
 import gov.usgs.cida.twitterreader.commons.logging.LoggerLevel;
 import gov.usgs.cida.twitterreader.commons.logging.LoggerType;
 import gov.usgs.cida.twitterreader.commons.logging.TwitterAppenderFactory;
@@ -33,8 +36,10 @@ public class ClientLauncher {
     private File propertiesPath = null;
     private File logDirectory = null;
     private final Properties properties = new Properties();
-    private final String loggingEncoderPattern = "%d{HH:mm:ss.SSS} [%t] %5p %logger{20} - %m%n";
-
+    private final LoggingEventObserver consoleEventLogger = new LoggingEventObserver();
+    private final LoggingMessageObserver consoleMessageLogger = new LoggingMessageObserver();
+    private static TwitterClient client;
+    
     @Option(name = "-h",
             usage = "Print this documentation",
             required = false,
@@ -66,7 +71,29 @@ public class ClientLauncher {
             usage = "Sets the level of logging to be used by loggers (default = INFO)")
     private LoggerLevel loggerLevel = LoggerLevel.INFO;
 
+    private void printUsage(PrintStream stream) {
+        stream.println("java Client [options...] arguments...");
+        stream.println("-------------------------------------");
+        parser.printUsage(stream);
+
+        // print option sample. This is useful some time
+        stream.println();
+        stream.println(" Example: java Client" + parser.printExample(OptionHandlerFilter.REQUIRED));
+    }
+
     public void run(String... args) throws FileNotFoundException, IOException {
+        // Process the flags comnig in on the command line 
+        processCommandLine(args);
+
+        if (client == null || TwitterClient.isStopped()) {
+//            client = new TwitterClient("test", "test");
+            consoleEventLogger.register();
+            consoleMessageLogger.register();
+        }
+        
+    }
+
+    private void processCommandLine(String[] args) throws FileNotFoundException, IOException {
         parser = new CmdLineParser(this);
         parser.setUsageWidth(80);
         try {
@@ -83,25 +110,26 @@ public class ClientLauncher {
             logger = (Logger) LoggerFactory.getLogger(ClientLauncher.class);
             logger.info("Logger Set To {}", logger.getEffectiveLevel());
 
+            // If a properties file exists, use that
             if (propertiesFile != null) {
                 processPropertiesFile();
             }
 
+            // If I am using file based logging, set up logging for files
             if (useLoggers) {
                 logDirectory = new File(baseDirectory, "logs");
                 prepareLoggingDirectory();
-                
+
                 // We are using loggers so I need to create a file logger for 
-                // this class, get its appender and attach it to the current logger
+                // this application, get its appender and attach it to the current logger
                 // so all logs will go to console and file
                 TwitterLoggerContext tlc = new TwitterLoggerContext(logger.getName());
                 tlc.setOutputDirectory(logDirectory);
                 tlc.setLoggerType(LoggerType.FILE);
-                
+
                 logger.addAppender(new TwitterAppenderFactory(tlc).createAppender());
                 logger.debug("File appender added");
             }
-
         } catch (CmdLineException | NullPointerException ex) {
             if (help) {
                 printUsage(System.out);
@@ -115,16 +143,6 @@ public class ClientLauncher {
             }
 
         }
-    }
-
-    private void printUsage(PrintStream stream) {
-        stream.println("java Client [options...] arguments...");
-        stream.println("-------------------------------------");
-        parser.printUsage(stream);
-
-        // print option sample. This is useful some time
-        stream.println();
-        stream.println(" Example: java Client" + parser.printExample(OptionHandlerFilter.REQUIRED));
     }
 
     private void processPropertiesFile() throws FileNotFoundException, IOException {
@@ -147,4 +165,5 @@ public class ClientLauncher {
             Files.createDirectory(logDirectory.toPath());
         }
     }
+
 }

@@ -1,6 +1,5 @@
-package gov.usgs.cida.twitter.reader.data.observer.interfaces;
+package gov.usgs.cida.twitterreader.commons.observer.interfaces;
 
-import com.google.common.eventbus.Subscribe;
 import com.twitter.hbc.core.event.Event;
 
 /**
@@ -12,11 +11,17 @@ public interface IClientObserver {
     /**
      * Handles a new incoming event
      *
-     * @param event
+     * @param eventObject
      */
-    @Subscribe
-    public void handleEvent(Event event);
-
+    public void handleEvent(Event eventObject);
+    
+    /**
+     * Handles a new incoming event
+     *
+     * @param messageObject
+     */
+    public void handleEvent(String messageObject);
+    
     /**
      * Register this object to the event bus
      */

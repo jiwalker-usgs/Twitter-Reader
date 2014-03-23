@@ -1,4 +1,4 @@
-package gov.usgs.cida.twitter.reader.data.client;
+package gov.usgs.cida.twitterreader.commons.queue;
 
 import java.util.concurrent.TimeUnit;
 

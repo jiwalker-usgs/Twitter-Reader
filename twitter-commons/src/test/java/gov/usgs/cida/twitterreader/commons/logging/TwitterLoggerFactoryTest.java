@@ -49,14 +49,14 @@ public class TwitterLoggerFactoryTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testCreateLoggerUsingNullLoggerContext() {
+    public void testCreateLoggerUsingNullLoggerContext() throws IOException {
         System.out.println("testCreateLoggerUsingNullLoggerContext");
         Logger result = new TwitterLoggerFactory(null).createLogger();
         result.info("Test");
     }
 
     @Test
-    public void testCreateConsoleLoggerUsingBaseLoggerContext() {
+    public void testCreateConsoleLoggerUsingBaseLoggerContext() throws IOException {
         System.out.println("testCreateConsoleLoggerUsingBaseLoggerContext");
         TwitterLoggerContext lc = new TwitterLoggerContext("Test Console Logger");
         Logger result = new TwitterLoggerFactory(lc).createLogger();
@@ -66,7 +66,7 @@ public class TwitterLoggerFactoryTest {
     }
 
     @Test
-    public void testCreateFileLogger() {
+    public void testCreateFileLogger() throws IOException {
         System.out.println("testCreateFileLogger");
         TwitterLoggerContext lc = new TwitterLoggerContext(this.getClass());
         lc.setLoggerType(LoggerType.FILE);

@@ -4,7 +4,7 @@ import com.twitter.hbc.core.event.Event;
 import com.twitter.hbc.core.event.EventType;
 import gov.usgs.cida.twitter.data.model.TwitterEvent;
 import gov.usgs.cida.twitter.data.model.TwitterEventType;
-import gov.usgs.cida.twitter.reader.data.observer.impl.DatabaseEventObserver;
+import gov.usgs.cida.twitter.data.observer.DatabaseEventObserver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
