@@ -1,6 +1,7 @@
 package gov.usgs.cida.twitterreader.main;
 
 import gov.usgs.cida.twitterreader.twitter.client.ClientLauncher;
+import gov.usgs.cida.twitterreader.twitter.client.IClient;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.kohsuke.args4j.CmdLineException;
@@ -13,6 +14,7 @@ import org.kohsuke.args4j.CmdLineException;
 public class ClientMain {
 
     private static ClientLauncher launcher;
+    private static IClient client;
     
     /**
      * @param args the command line arguments
@@ -20,6 +22,6 @@ public class ClientMain {
      */
     public static void main(String[] args) throws FileNotFoundException, IOException, CmdLineException {
         launcher = new ClientLauncher();
-        launcher.init(args);
+        client = launcher.buildClient(args);
     }
 }

@@ -64,8 +64,18 @@ public class ClientImpl implements IClient {
     }
 
     @Override
-    public void connect() {
+    public void start() {
         client.start();
+    }
+
+    @Override
+    public void start(Boolean autoStartQueue) {
+        client.start(autoStartQueue);
+    }
+
+    @Override
+    public void stop(Integer waitMillis) {
+        client.stop(waitMillis);
     }
 
     @Override

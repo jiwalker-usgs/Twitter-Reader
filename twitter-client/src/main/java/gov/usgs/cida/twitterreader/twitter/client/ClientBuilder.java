@@ -1,6 +1,5 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
-import ch.qos.logback.core.net.server.Client;
 import com.twitter.hbc.core.endpoint.Location;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClientContext;
@@ -50,9 +49,10 @@ public class ClientBuilder {
             context.setLocations(locations);
             
             twitterClientBuilder.setContext(context);
-            TwitterClient twitterClient = twitterClientBuilder.build();
             
+            TwitterClient twitterClient = twitterClientBuilder.build();
             client = new ClientImpl(twitterClient);
+            
             for (IClientObserver clientObserver : clientObservers) {
                 client.addObserver(clientObserver).register();
             }

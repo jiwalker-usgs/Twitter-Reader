@@ -38,7 +38,25 @@ public interface IClient {
      */
     public IClientObserver addObserver(IClientObserver observer);
 
-    public void connect();
+    /**
+     * Connects the Twitter client to Twitter
+     */
+    public void start();
+
+    /**
+     * Connects the Twitter client to Twitter with the option to automatically
+     * start queueing
+     *
+     * @param autoStartQueue automatically begin queueing when connected
+     */
+    public void start(Boolean autoStartQueue);
+
+    /**
+     * Disconnect client and ready it for disposal. Also stops all queued jobs
+     *
+     * @param waitMillis milliseconds to wait for the client to stop
+     */
+    public void stop(Integer waitMillis);
 
     /**
      * Registers all available observers to listen to TwitterClient

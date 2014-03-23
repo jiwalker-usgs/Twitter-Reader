@@ -47,9 +47,9 @@ public class ClientLauncher {
     private String oauthSecret;
     private String simpleUsername;
     private String simplePassword;
-    private List<Long> userIds = new ArrayList<>();
-    private List<String> terms = new ArrayList<>();
-    private List<Location> locations = new ArrayList<>();
+    private final List<Long> userIds = new ArrayList<>();
+    private final List<String> terms = new ArrayList<>();
+    private final List<Location> locations = new ArrayList<>();
     private boolean oauth;
     private boolean simple;
     private IAuthType authType;
@@ -160,7 +160,7 @@ public class ClientLauncher {
         parser.printUsage(stream);
     }
 
-    public void init(String... args) throws FileNotFoundException, IOException, CmdLineException {
+    public IClient buildClient(String... args) throws FileNotFoundException, IOException, CmdLineException {
         // Process the flags coming in on the command line 
         processCommandLine(args);
 
@@ -169,10 +169,12 @@ public class ClientLauncher {
                     .addObserver(new LoggingEventObserver())
                     .addObserver(new LoggingMessageObserver())
                     .setUserIds(userIds)
-                    .setTerms(terms);
+                    .setTerms(terms)
+                    .setLocations(locations);
             client = clientBuilder.build();
         }
-
+        
+        return client;
     }
 
     private void processCommandLine(String[] args) throws FileNotFoundException, IOException, CmdLineException {
@@ -287,6 +289,10 @@ public class ClientLauncher {
         if (!logDirectory.exists()) {
             Files.createDirectory(logDirectory.toPath());
         }
+    }
+    
+    public IClient getClient() {
+        return client;
     }
 
 }
