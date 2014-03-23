@@ -3,6 +3,7 @@ package gov.usgs.cida.twitterreader.main;
 import gov.usgs.cida.twitterreader.twitter.client.ClientLauncher;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import org.kohsuke.args4j.CmdLineException;
 
 /**
  * Entry point to the Twitter Client application
@@ -11,11 +12,14 @@ import java.io.IOException;
  */
 public class ClientMain {
 
+    private static ClientLauncher launcher;
+    
     /**
      * @param args the command line arguments
      * @throws java.io.FileNotFoundException
      */
-    public static void main(String[] args) throws FileNotFoundException, IOException {
-        new ClientLauncher().run(args);
+    public static void main(String[] args) throws FileNotFoundException, IOException, CmdLineException {
+        launcher = new ClientLauncher();
+        launcher.init(args);
     }
 }

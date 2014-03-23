@@ -57,7 +57,7 @@ public class ClientLauncherTest {
         System.out.println("testRunWithNullArguments");
         String[] args = null;
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         fail("Expected a NullPointerException");
     }
 
@@ -66,7 +66,7 @@ public class ClientLauncherTest {
         System.out.println("testRunWithNoArguments");
         String[] args = new String[]{""};
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         assertTrue("No exception was generated", true);
     }
 
@@ -78,7 +78,7 @@ public class ClientLauncherTest {
             "-p", "required.input"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         fail("Expected a FileNotFoundException");
     }
 
@@ -90,7 +90,7 @@ public class ClientLauncherTest {
             "-p", "not-a-real.properties"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         fail("Expected a FileNotFoundException");
     }
 
@@ -102,7 +102,7 @@ public class ClientLauncherTest {
             "-p", "valid.properties"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         fail("Expected a IllegalArgumentException");
     }
 
@@ -114,7 +114,7 @@ public class ClientLauncherTest {
             "-p", "oauth.properties,valid.properties"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         assertTrue("No exception was generated", true);
     }
 
@@ -126,7 +126,7 @@ public class ClientLauncherTest {
             "-p", "simpleauth.properties,valid.properties"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         assertTrue("No exception was generated", true);
     }
 
@@ -139,7 +139,7 @@ public class ClientLauncherTest {
             "--logging.use"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         File logPath = new File(tempWorkDirectory, "logs");
         assertTrue(logPath.exists());
         assertTrue(logPath.isDirectory());
@@ -154,7 +154,7 @@ public class ClientLauncherTest {
             "-l"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         File logDirectory = new File(tempWorkDirectory, "logs");
         FileFilter ff = new SuffixFileFilter("log");
         File[] files = logDirectory.listFiles(ff);
@@ -170,10 +170,11 @@ public class ClientLauncherTest {
             "-d", tempWorkDirectory.getAbsolutePath(),
             "-p", "simpleauth.properties",
             "-l",
+            "--track.userids", "1,2,3,4",
             "--debug"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         File logDirectory = new File(tempWorkDirectory, "logs");
         FileFilter ff = new SuffixFileFilter("log");
         File[] files = logDirectory.listFiles(ff);
@@ -192,7 +193,7 @@ public class ClientLauncherTest {
             "-l"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         File logDirectory = new File(tempWorkDirectory, "logs");
         FileFilter ff = new SuffixFileFilter("log");
         File[] files = logDirectory.listFiles(ff);
@@ -210,7 +211,7 @@ public class ClientLauncherTest {
             "-p", "simpleauth.properties,valid.properties"
         };
         ClientLauncher instance = new ClientLauncher();
-        instance.run(args);
+        instance.init(args);
         File logDirectory = new File(tempWorkDirectory, "logs");
         FileFilter ff = new SuffixFileFilter("log");
         File[] files = logDirectory.listFiles(ff);

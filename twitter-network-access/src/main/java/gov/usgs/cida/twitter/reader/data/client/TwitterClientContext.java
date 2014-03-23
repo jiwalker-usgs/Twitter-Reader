@@ -2,44 +2,29 @@ package gov.usgs.cida.twitter.reader.data.client;
 
 import com.twitter.hbc.core.endpoint.Location;
 import com.twitter.hbc.httpclient.auth.Authentication;
-import com.twitter.hbc.httpclient.auth.BasicAuth;
-import com.twitter.hbc.httpclient.auth.OAuth1;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents the context used in building the client
  *
  * @author isuftin
  */
-public class ClientContext {
+public class TwitterClientContext {
 
     private Authentication auth = null;
     private List<Long> userIds = new ArrayList<>();
     private List<String> terms = new ArrayList<>();
     private List<Location> locations = new ArrayList<>();
 
-    private ClientContext() {
+    private TwitterClientContext() {
     }
 
-    ;
-    
-    public ClientContext(String consumerKey, String consumerSecret, String token, String secret) {
-        if (StringUtils.isNotBlank(consumerKey) && StringUtils.isNotBlank(consumerSecret)
-                && StringUtils.isNotBlank(token) && StringUtils.isNotBlank(secret)) {
-            auth = new OAuth1(consumerKey, consumerSecret, token, secret);
-        } else {
-            throw new IllegalArgumentException("consumerKey, consumerSecret, token and secret must be populated");
+    public TwitterClientContext(Authentication auth) {
+        if (auth == null) {
+            throw new IllegalArgumentException("Authentication object not provided");
         }
-    }
-
-    public ClientContext(String userName, String password) {
-        if (StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(password)) {
-            auth = new BasicAuth(userName, password);
-        } else {
-            throw new IllegalArgumentException("Username and password must be populated");
-        }
+        this.auth = auth;
     }
 
     Authentication getAuth() {
@@ -57,7 +42,9 @@ public class ClientContext {
      * @param userIds the userIds to set
      */
     public void setUserIds(List<Long> userIds) {
-        this.userIds = new ArrayList<>(userIds);
+        if (userIds != null) {
+            this.userIds = new ArrayList<>(userIds);
+        }
     }
 
     /**
@@ -71,7 +58,9 @@ public class ClientContext {
      * @param terms the terms to set
      */
     public void setTerms(List<String> terms) {
-        this.terms = new ArrayList<>(terms);
+        if (terms != null) {
+            this.terms = new ArrayList<>(terms);
+        }
     }
 
     /**
@@ -85,7 +74,9 @@ public class ClientContext {
      * @param locations the locations to set
      */
     public void setLocations(List<Location> locations) {
-        this.locations = new ArrayList<>(locations);
+        if (locations != null) {
+            this.locations = new ArrayList<>(locations);
+        }
     }
 
     boolean isEmpty() {

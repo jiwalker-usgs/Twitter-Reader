@@ -1,11 +1,16 @@
 package gov.usgs.cida.twitter.reader.data.access;
 
 import com.twitter.hbc.core.endpoint.Location;
-import gov.usgs.cida.twitter.reader.data.client.ClientContext;
+import com.twitter.hbc.httpclient.auth.Authentication;
+import gov.usgs.cida.twitter.reader.data.client.TwitterClientContext;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClientBuilder;
+import gov.usgs.cida.twitter.reader.data.client.auth.OAuth;
+import gov.usgs.cida.twitter.reader.data.client.auth.UserPasswordAuth;
 import java.util.ArrayList;
 import java.util.List;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.*;
@@ -64,7 +69,8 @@ public class CIDATwitterClientTest {
     @Test(expected = IllegalArgumentException.class)
     public void testBuildClientUsingBlankUserNameAndPass() {
         System.out.println("testBuildClientUsingBlankUserNameAndPass");
-        ClientContext context = new ClientContext(user, pass);
+        Authentication auth = new UserPasswordAuth(user, pass).createAuthentication();
+        TwitterClientContext context = new TwitterClientContext(auth);
         TwitterClientBuilder builder = new TwitterClientBuilder().
                 setContext(context);
         builder.build();
@@ -74,7 +80,8 @@ public class CIDATwitterClientTest {
     @Test(expected = IllegalArgumentException.class)
     public void testBuildClientUsingNullUserNameAndPass() {
         System.out.println("testBuildClientUsingNullUserNameAndPass");
-        ClientContext context = new ClientContext(null, null);
+        Authentication auth = new UserPasswordAuth(null, null).createAuthentication();
+        TwitterClientContext context = new TwitterClientContext(auth);
         TwitterClientBuilder builder = new TwitterClientBuilder().
                 setContext(context);
         builder.build();
@@ -84,7 +91,8 @@ public class CIDATwitterClientTest {
     @Test(expected = IllegalArgumentException.class)
     public void testBuildClientUsingBlankOAuthCredentials() {
         System.out.println("testBuildClientUsingBlankOAuthCredentials");
-        ClientContext context = new ClientContext(consumerKey, consumerSecret, token, secret);
+        Authentication auth = new OAuth(consumerKey, consumerSecret, token, secret).createAuthentication();
+        TwitterClientContext context = new TwitterClientContext(auth);
         TwitterClientBuilder builder = new TwitterClientBuilder().
                 setContext(context);
         builder.build();
@@ -94,7 +102,8 @@ public class CIDATwitterClientTest {
     @Test(expected = IllegalArgumentException.class)
     public void testBuildClientUsingNullOAuthCredentials() {
         System.out.println("testBuildClientUsingNullOAuthCredentials");
-        ClientContext context = new ClientContext(null, null, null, null);
+        Authentication auth = new OAuth(null, null, null, null).createAuthentication();
+        TwitterClientContext context = new TwitterClientContext(auth);
         TwitterClientBuilder builder = new TwitterClientBuilder().
                 setContext(context);
         builder.build();
@@ -106,7 +115,8 @@ public class CIDATwitterClientTest {
         System.out.println("testBuildClientUsingNullOAuthCredentials");
         user = "test";
         pass = "test";
-        ClientContext context = new ClientContext(user, pass);
+        Authentication auth = new UserPasswordAuth(user, pass).createAuthentication();
+        TwitterClientContext context = new TwitterClientContext(auth);
         TwitterClientBuilder builder = new TwitterClientBuilder().
                 setContext(context);
         builder.build();
@@ -120,7 +130,8 @@ public class CIDATwitterClientTest {
         pass = "test";
         userIds.add(Long.MIN_VALUE);
 
-        ClientContext context = new ClientContext(user, pass);
+        Authentication auth = new UserPasswordAuth(user, pass).createAuthentication();
+        TwitterClientContext context = new TwitterClientContext(auth);
         context.setUserIds(userIds);
 
         TwitterClientBuilder builder = new TwitterClientBuilder().
@@ -139,7 +150,8 @@ public class CIDATwitterClientTest {
         secret = "test";
         userIds.add(Long.MIN_VALUE);
 
-        ClientContext context = new ClientContext(consumerKey, consumerSecret, token, secret);
+        Authentication auth = new OAuth(consumerKey, consumerSecret, token, secret).createAuthentication();
+        TwitterClientContext context = new TwitterClientContext(auth);
         context.setUserIds(userIds);
 
         TwitterClientBuilder builder = new TwitterClientBuilder().

@@ -7,6 +7,7 @@ import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -19,8 +20,8 @@ public class ClientImpl implements IClient {
     private List<Long> userIds;
     private List<String> terms;
     private List<Location> locations;
-    private QueueParams eventQueueParams = null;
-    private QueueParams messageQueueParams = null;
+    private QueueParams eventQueueParams = new QueueParams(0l, 0l, TimeUnit.MINUTES);
+    private QueueParams messageQueueParams = new QueueParams(0l, 0l, TimeUnit.MINUTES);
 
     protected ClientImpl(TwitterClient client) {
         this.client = client;
@@ -102,5 +103,19 @@ public class ClientImpl implements IClient {
     @Override
     public void setMessageQueueParams(QueueParams messageQueueParams) {
         this.messageQueueParams = messageQueueParams;
+    }
+
+    /**
+     * @return the eventQueueParams
+     */
+    public QueueParams getEventQueueParams() {
+        return eventQueueParams;
+    }
+
+    /**
+     * @return the messageQueueParams
+     */
+    public QueueParams getMessageQueueParams() {
+        return messageQueueParams;
     }
 }

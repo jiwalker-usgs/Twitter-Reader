@@ -2,7 +2,11 @@ package gov.usgs.cida.twitterreader.twitter.client;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.twitter.hbc.core.endpoint.Location;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
+import gov.usgs.cida.twitter.reader.data.client.auth.IAuthType;
+import gov.usgs.cida.twitter.reader.data.client.auth.OAuth;
+import gov.usgs.cida.twitter.reader.data.client.auth.UserPasswordAuth;
 import gov.usgs.cida.twitterreader.commons.logging.LoggerType;
 import gov.usgs.cida.twitterreader.commons.logging.TwitterAppenderFactory;
 import gov.usgs.cida.twitterreader.commons.logging.TwitterLoggerContext;
@@ -14,9 +18,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -36,17 +40,20 @@ public class ClientLauncher {
     private String propertiesFiles = null;
     private File logDirectory = null;
     private final Properties properties = new Properties();
-    private final LoggingEventObserver consoleEventLogger = new LoggingEventObserver();
-    private final LoggingMessageObserver consoleMessageLogger = new LoggingMessageObserver();
-    private static TwitterClient client;
+    private static IClient client;
     private String oauthConsumerKey;
     private String oauthConsumerSecret;
     private String oauthToken;
     private String oauthSecret;
     private String simpleUsername;
     private String simplePassword;
+    private List<Long> userIds = new ArrayList<>();
+    private List<String> terms = new ArrayList<>();
+    private List<Location> locations = new ArrayList<>();
     private boolean oauth;
     private boolean simple;
+    private IAuthType authType;
+    private boolean processedCommandline = false;
 
     @Option(name = "-h",
             aliases = {"--help"},
@@ -83,19 +90,87 @@ public class ClientLauncher {
             usage = "Enable debug logging. (default: false)")
     private boolean debugLogging = false;
 
+    @Option(name = "--track.userids",
+            usage = "Comma separated list of user ids to track",
+            metaVar = "Long")
+    public void setUserIds(String incomingUids) {
+        if (StringUtils.isNotBlank(incomingUids)) {
+            for (String userId : incomingUids.split(",")) {
+                Long idLong;
+
+                try {
+                    idLong = Long.parseLong(userId);
+                    userIds.add(idLong);
+                } catch (NumberFormatException nfe) {
+                    packageLogger.debug(String.format("Could not parse incoming userid %s", userId));
+                }
+            }
+        }
+    }
+
+    @Option(name = "--track.terms",
+            usage = "Comma separated list of terms to track",
+            metaVar = "String")
+    public void setTerms(String incomingUids) {
+        if (StringUtils.isNotBlank(incomingUids)) {
+            for (String userId : incomingUids.split(",")) {
+                Long idLong;
+
+                try {
+                    idLong = Long.parseLong(userId);
+                    userIds.add(idLong);
+                } catch (NumberFormatException nfe) {
+                    packageLogger.debug(String.format("Could not parse incoming userid %s", userId));
+                }
+            }
+        }
+    }
+    
+    @Option(name = "--track.locations",
+            usage = "Comma separated set of list of doubles per location in the "
+                    + "format of (southwest-lon,southwest-lat,northeast-lon,northeast-lat). "
+                    + "Sets are separated by pipe (|) character. Example: \"1.00,2.00,3.00,4.00|2.00,3.00,4.00,5.00\"",
+            metaVar = "Double,Double,Double,Double")
+    public void setLocations(String locationList) {
+        String[] incomingLocations = locationList.split("\\|");
+        for (String locationString : incomingLocations) {
+            String[] locationStringArray = locationString.split(",");
+            if (locationStringArray.length != 4) {
+                throw new IllegalArgumentException("track.locations elements must be in the format of southwest-lon,southwest-lat,northeast-lon,northeast-lat");
+            }
+            
+            try {
+                Double swLon = Double.parseDouble(locationStringArray[0].trim());
+                Double swLat = Double.parseDouble(locationStringArray[1].trim());
+                Double neLon = Double.parseDouble(locationStringArray[2].trim());
+                Double neLat = Double.parseDouble(locationStringArray[3].trim());
+                Location.Coordinate swCoord = new Location.Coordinate(swLon,swLat);
+                Location.Coordinate neCoord = new Location.Coordinate(neLon,neLat);
+                Location location = new Location(swCoord,neCoord);
+                locations.add(location);
+            } catch (NumberFormatException nfe) {
+                packageLogger.debug(String.format("Could not convert location element to Double"));
+            }
+        }
+    }
+
     private void printUsage(PrintStream stream) {
         stream.println("java Client [options...] arguments...");
         stream.println("-------------------------------------");
         parser.printUsage(stream);
     }
 
-    public void run(String... args) throws FileNotFoundException, IOException, CmdLineException {
+    public void init(String... args) throws FileNotFoundException, IOException, CmdLineException {
         // Process the flags coming in on the command line 
         processCommandLine(args);
 
-        if (client == null || TwitterClient.isStopped()) {
-            consoleEventLogger.register();
-            consoleMessageLogger.register();
+        if (processedCommandline && (client == null || TwitterClient.isStopped())) {
+            ClientBuilder clientBuilder = new ClientBuilder(authType)
+                    .addObserver(new LoggingEventObserver())
+                    .addObserver(new LoggingMessageObserver())
+                    .setUserIds(userIds)
+                    .setTerms(terms);
+            client = clientBuilder.build();
         }
 
     }
@@ -110,14 +185,14 @@ public class ClientLauncher {
             if (!baseDirectory.exists()) {
                 throw new FileNotFoundException(String.format("Directory at %s does not exist", baseDirectory.getAbsolutePath()));
             }
-            
+
             logger = (Logger) LoggerFactory.getLogger(ClientLauncher.class);
 
             // If a properties file exists, use that
             if (propertiesFiles != null) {
                 processPropertiesFile();
             }
-            
+
             // Set logging level and appenders for the package and instantiate 
             // the logger for this class
             Level logLevel = debugLogging ? Level.DEBUG : Level.INFO;
@@ -139,6 +214,8 @@ public class ClientLauncher {
                 logger.addAppender(new TwitterAppenderFactory(tlc).createAppender());
                 logger.debug("File appender added");
             }
+
+            processedCommandline = true;
         } catch (CmdLineException ex) {
             // User may not have passed in any arguments
             boolean missingArgmentList = "no argument is allowed:".equals(ex.getMessage().trim().toLowerCase());
@@ -174,15 +251,32 @@ public class ClientLauncher {
         this.simple = StringUtils.isNotBlank(this.simpleUsername) && StringUtils.isNotBlank(this.simplePassword);
         if (!oauth && !simple) {
             throw new IllegalArgumentException("Required: OAuth credentials or Simple Authentication credentials");
+        } else if (oauth) {
+            this.authType = new OAuth(this.oauthConsumerKey, this.oauthConsumerSecret, this.oauthToken, this.oauthSecret);
+        } else {
+            this.authType = new UserPasswordAuth(simpleUsername, simplePassword);
         }
 
         if (properties.containsKey("logging.use")) {
             useLoggers = true;
         }
-        
+
         if (properties.containsKey("debugging")) {
             debugLogging = true;
         }
+
+        if (properties.containsKey("track.userids")) {
+            this.setUserIds(properties.getProperty("track.userids"));
+        }
+
+        if (properties.containsKey("track.terms")) {
+            this.setTerms(properties.getProperty("track.terms"));
+        }
+        
+        if (properties.containsKey("track.locations")) {
+            this.setLocations(properties.getProperty("track.locations"));
+        }
+
     }
 
     private void prepareLoggingDirectory() throws IOException {

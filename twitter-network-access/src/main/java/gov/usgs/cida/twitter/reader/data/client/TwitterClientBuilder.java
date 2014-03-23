@@ -25,7 +25,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
  */
 public class TwitterClientBuilder {
 
-    private ClientContext context = null;
+    private TwitterClientContext context = null;
 
     public TwitterClient build() {
         TwitterClient client;
@@ -70,7 +70,7 @@ public class TwitterClientBuilder {
      * @param context the context to set
      * @return
      */
-    public TwitterClientBuilder setContext(ClientContext context) {
+    public TwitterClientBuilder setContext(TwitterClientContext context) {
         this.context = context;
         return this;
     }
