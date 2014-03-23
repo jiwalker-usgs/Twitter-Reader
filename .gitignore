@@ -12,3 +12,4 @@
 /twitter-data-access/nbactions-twitter-liquibase-generate-changelog.xml
 /twitter-client/target/
 /twitter-commons/target/
+/twitter-client/nbactions.xml
