@@ -7,8 +7,8 @@ import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
  *
  * @author isuftin
  */
-public abstract class ClientObserver implements IClientObserver{
-        
+public abstract class ClientObserver implements IClientObserver {
+
     /**
      * Register this object to the event bus
      */
@@ -20,11 +20,11 @@ public abstract class ClientObserver implements IClientObserver{
      */
     @Override
     public abstract void unregister();
-    
+
     @Override
     public abstract void handleEvent(Event eventObject);
 
     @Override
     public abstract void handleEvent(String messageObject);
-    
+
 }

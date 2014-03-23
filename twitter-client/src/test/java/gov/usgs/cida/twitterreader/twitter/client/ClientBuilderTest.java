@@ -66,7 +66,7 @@ public class ClientBuilderTest {
         assertThat(test.getObservers().size(), is(1));
         assertThat(test.getObservers().get(0), is(instanceOf(LoggingEventObserver.class)));
     }
-    
+
     @Test
     public void testBuildWithQueueParams() {
         System.out.println("testBuildWithQueueParams");

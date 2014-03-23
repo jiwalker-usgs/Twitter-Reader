@@ -97,7 +97,7 @@ public class TwitterLoggerFactoryTest {
         assertThat(fileLines.get(0), containsString("INFO"));
         assertThat(fileLines.get(0), containsString("Test Log!"));
     }
-    
+
     @Test(expected = IOException.class)
     public void testCreateFileLoggerWithBogusOutputDir() throws IOException {
         System.out.println("testCreateFileLoggerWithBogusOutputDir");

@@ -14,14 +14,14 @@ public interface IClientObserver {
      * @param eventObject
      */
     public void handleEvent(Event eventObject);
-    
+
     /**
      * Handles a new incoming event
      *
      * @param messageObject
      */
     public void handleEvent(String messageObject);
-    
+
     /**
      * Register this object to the event bus
      */

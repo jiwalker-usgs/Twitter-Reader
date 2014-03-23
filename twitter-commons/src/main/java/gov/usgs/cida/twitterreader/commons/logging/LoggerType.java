@@ -6,5 +6,6 @@ package gov.usgs.cida.twitterreader.commons.logging;
  * @author isuftin
  */
 public enum LoggerType {
+
     CONSOLE, FILE
 }

@@ -133,16 +133,16 @@ public class TwitterQueues {
 
         @Override
         public void run() {
-                RUNNER_LOGGER.debug("TwitterMessageRunner checking queue");
-                while (!messageQueue.isEmpty()) {
-                    try {
-                        String message = messageQueue.take();
-                        eventBus.post(message);
-                    } catch (InterruptedException ex) {
-                        RUNNER_LOGGER.warn("Message queue thread interrupted: " + ex);
-                    }
+            RUNNER_LOGGER.debug("TwitterMessageRunner checking queue");
+            while (!messageQueue.isEmpty()) {
+                try {
+                    String message = messageQueue.take();
+                    eventBus.post(message);
+                } catch (InterruptedException ex) {
+                    RUNNER_LOGGER.warn("Message queue thread interrupted: " + ex);
                 }
-                RUNNER_LOGGER.debug("TwitterMessageRunner done checking queue");
+            }
+            RUNNER_LOGGER.debug("TwitterMessageRunner done checking queue");
         }
     }
 
@@ -156,16 +156,16 @@ public class TwitterQueues {
 
         @Override
         public void run() {
-                RUNNER_LOGGER.debug("TwitterEventRunner checking queue");
-                while (!TwitterQueues.eventQueue.isEmpty()) {
-                    try {
-                        Event event = TwitterQueues.eventQueue.take();
-                        eventBus.post(event);
-                    } catch (InterruptedException ex) {
-                        RUNNER_LOGGER.warn("Event queue thread interrupted: " + ex);
-                    }
+            RUNNER_LOGGER.debug("TwitterEventRunner checking queue");
+            while (!TwitterQueues.eventQueue.isEmpty()) {
+                try {
+                    Event event = TwitterQueues.eventQueue.take();
+                    eventBus.post(event);
+                } catch (InterruptedException ex) {
+                    RUNNER_LOGGER.warn("Event queue thread interrupted: " + ex);
                 }
-                RUNNER_LOGGER.debug("TwitterEventRunner done checking queue");
+            }
+            RUNNER_LOGGER.debug("TwitterEventRunner done checking queue");
         }
     }
 

@@ -34,7 +34,7 @@ import org.junit.experimental.categories.Category;
 @Category(IntegrationTest.class)
 public class TwitterEventTypeDAOTest {
 
-   private static Connection conn;
+    private static Connection conn;
     private static SqlSessionFactory sqlSessionFactory;
     private static Liquibase liquibase;
     private TwitterEventTypeDAO instance = null;
@@ -68,7 +68,7 @@ public class TwitterEventTypeDAOTest {
 
         liquibase.dropAll();
         liquibase.update(contexts);
-        
+
         try (InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml")) {
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, "integration-test");
         }
@@ -83,7 +83,7 @@ public class TwitterEventTypeDAOTest {
     public void beforeTest() throws LiquibaseException {
         instance = new TwitterEventTypeDAO(sqlSessionFactory);
     }
-    
+
     @Test
     public void testGetAll() {
         System.out.println("getAll");
@@ -102,7 +102,7 @@ public class TwitterEventTypeDAOTest {
         assertThat(result.getEventDescription(), is("When an http request is made"));
         assertThat(result.getEventType(), is("CONNECTION ATTEMPT"));
     }
-    
+
     @Test
     public void testGetInvalidId() {
         System.out.println("testGetInvalidId");
@@ -110,5 +110,5 @@ public class TwitterEventTypeDAOTest {
         TwitterEventType result = instance.getByEventTypeId(id);
         assertNull(result);
     }
-    
+
 }

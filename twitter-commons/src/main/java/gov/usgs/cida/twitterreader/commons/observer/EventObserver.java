@@ -8,7 +8,7 @@ import com.twitter.hbc.core.event.Event;
  * @author isuftin
  */
 public abstract class EventObserver extends ClientObserver {
-    
+
     /**
      * Handles a new incoming event
      *

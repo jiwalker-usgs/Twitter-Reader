@@ -39,7 +39,7 @@ public class ClientLauncher {
     private final LoggingEventObserver consoleEventLogger = new LoggingEventObserver();
     private final LoggingMessageObserver consoleMessageLogger = new LoggingMessageObserver();
     private static TwitterClient client;
-    
+
     @Option(name = "-h",
             usage = "Print this documentation",
             required = false,
@@ -90,7 +90,7 @@ public class ClientLauncher {
             consoleEventLogger.register();
             consoleMessageLogger.register();
         }
-        
+
     }
 
     private void processCommandLine(String[] args) throws FileNotFoundException, IOException {

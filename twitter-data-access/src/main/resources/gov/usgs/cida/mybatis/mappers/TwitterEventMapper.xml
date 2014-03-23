@@ -23,19 +23,19 @@
         id="getAll" 
         resultMap="eventResultMap">
         SELECT
-            e.EVENT_ID,
-            e.EVENT_TYPE,
-            e.EVENT_MESSAGE,
-            e.EVENT_TIMESTAMP,
-            et.EVENT_DESCRIPTION,
-            et.EVENT_TYPE,
-            et.EVENT_TYPE_ID
+        e.EVENT_ID,
+        e.EVENT_TYPE,
+        e.EVENT_MESSAGE,
+        e.EVENT_TIMESTAMP,
+        et.EVENT_DESCRIPTION,
+        et.EVENT_TYPE,
+        et.EVENT_TYPE_ID
         FROM 
-            EVENT e
+        EVENT e
         LEFT OUTER JOIN 
-            EVENT_TYPE et
+        EVENT_TYPE et
         ON 
-            e.EVENT_TYPE = et.EVENT_TYPE_ID
+        e.EVENT_TYPE = et.EVENT_TYPE_ID
     </select>
  
     <select 
@@ -43,21 +43,21 @@
         parameterType="int" 
         resultMap="eventResultMap">
         SELECT
-            e.EVENT_ID,
-            e.EVENT_TYPE,
-            e.EVENT_MESSAGE,
-            e.EVENT_TIMESTAMP,
-            et.EVENT_DESCRIPTION,
-            et.EVENT_TYPE,
-            et.EVENT_TYPE_ID
+        e.EVENT_ID,
+        e.EVENT_TYPE,
+        e.EVENT_MESSAGE,
+        e.EVENT_TIMESTAMP,
+        et.EVENT_DESCRIPTION,
+        et.EVENT_TYPE,
+        et.EVENT_TYPE_ID
         FROM 
-            EVENT e
+        EVENT e
         LEFT OUTER JOIN 
-            EVENT_TYPE et
+        EVENT_TYPE et
         ON 
-            e.EVENT_TYPE = et.EVENT_TYPE_ID
+        e.EVENT_TYPE = et.EVENT_TYPE_ID
         WHERE
-            EVENT_ID = #{id}
+        EVENT_ID = #{id}
     </select>
     
     <insert 

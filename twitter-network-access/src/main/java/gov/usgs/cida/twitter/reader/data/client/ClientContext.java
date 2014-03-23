@@ -20,7 +20,10 @@ public class ClientContext {
     private List<String> terms = new ArrayList<>();
     private List<Location> locations = new ArrayList<>();
 
-    private ClientContext(){};
+    private ClientContext() {
+    }
+
+    ;
     
     public ClientContext(String consumerKey, String consumerSecret, String token, String secret) {
         if (StringUtils.isNotBlank(consumerKey) && StringUtils.isNotBlank(consumerSecret)
@@ -30,7 +33,7 @@ public class ClientContext {
             throw new IllegalArgumentException("consumerKey, consumerSecret, token and secret must be populated");
         }
     }
-    
+
     public ClientContext(String userName, String password) {
         if (StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(password)) {
             auth = new BasicAuth(userName, password);
@@ -42,7 +45,7 @@ public class ClientContext {
     Authentication getAuth() {
         return auth;
     }
-    
+
     /**
      * @return the userIds
      */

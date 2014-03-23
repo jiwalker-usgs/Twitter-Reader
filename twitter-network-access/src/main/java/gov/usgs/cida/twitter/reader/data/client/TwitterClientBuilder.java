@@ -12,13 +12,13 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
  *
  * In order to properly create the client, a set of authentication parameters
  * must be passed in. This set should either be:
- * 
- * OAuth:  the combination of a consumer key, consumer secret, token and secret 
- * 
- * or 
- * 
- * Basic Auth: a username and password. 
- * 
+ *
+ * OAuth: the combination of a consumer key, consumer secret, token and secret
+ *
+ * or
+ *
+ * Basic Auth: a username and password.
+ *
  * If both are populated, OAuth is preferred.
  *
  * @author isuftin
@@ -30,7 +30,7 @@ public class TwitterClientBuilder {
     public TwitterClient build() {
         TwitterClient client;
         Client coreClient;
-        
+
         if (context == null || context.isEmpty()) {
             throw new IllegalArgumentException("context cannot be null and has to be populated with at least a user id, a term or a location");
         }

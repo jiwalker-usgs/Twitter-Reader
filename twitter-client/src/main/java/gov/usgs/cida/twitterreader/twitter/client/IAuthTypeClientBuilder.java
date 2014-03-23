@@ -10,14 +10,15 @@ import java.util.List;
  * @author isuftin
  */
 public interface IAuthTypeClientBuilder {
-    
+
     /**
-     * Creates a new Twitter Client based on the authentical method of the builder
-     * @return 
+     * Creates a new Twitter Client based on the authentical method of the
+     * builder
+     *
+     * @return
      */
-    public TwitterClient  buildTwitterClient();
-    
-    
+    public TwitterClient buildTwitterClient();
+
     /**
      * @param locations the locations to set
      * @return

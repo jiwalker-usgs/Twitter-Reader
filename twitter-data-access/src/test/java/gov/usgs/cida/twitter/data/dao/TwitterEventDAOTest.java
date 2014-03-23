@@ -69,12 +69,12 @@ public class TwitterEventDAOTest {
         Class.forName(driver).newInstance();
 
         conn = DriverManager.getConnection("jdbc:" + dbType + "://127.0.0.1:" + port + "/" + schema + ";create=true", "test", "test");
-        
+
         Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
         liquibase = new Liquibase("src/main/resources/liquibase/changelogs/create-table-parent-changeLog.xml", new FileSystemResourceAccessor(), database);
         liquibase.dropAll();
         liquibase.update(contexts);
-        
+
         try (InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml")) {
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream, "integration-test");
         }
@@ -103,7 +103,7 @@ public class TwitterEventDAOTest {
         TwitterEvent retrievedEvent;
         int insertedRows = instance.insertEvent(insertEvent);
         assertThat(insertedRows, is(1));
-            
+
         List<TwitterEvent> retrievedEventList = instance.getAll();
         retrievedEvent = retrievedEventList.get(retrievedEventList.size() - 1);
         assertThat(retrievedEvent.getEventMessage(), is("This is a test"));

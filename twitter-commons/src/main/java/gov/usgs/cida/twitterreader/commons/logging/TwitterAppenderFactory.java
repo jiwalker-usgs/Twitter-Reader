@@ -43,7 +43,7 @@ public class TwitterAppenderFactory {
         } else {
             this.context = twitterLoggerContext.getLoggerContext();
         }
-        
+
         if (this.type == LoggerType.FILE && !this.outputDirectory.exists()) {
             throw new IOException(String.format("Output directory %s does not exist", outputDirectory.getPath()));
         }
@@ -79,7 +79,7 @@ public class TwitterAppenderFactory {
         RollingFileAppender<ILoggingEvent> result = new RollingFileAppender<>();
         PatternLayoutEncoder ple = new PatternLayoutEncoder();
         TimeBasedRollingPolicy<ILoggingEvent> rPolicy = new TimeBasedRollingPolicy<>();
-        
+
         // Set the pattern layout encoder
         ple.setPattern(this.encoderPattern);
         ple.setContext(this.context);
@@ -101,7 +101,7 @@ public class TwitterAppenderFactory {
 
         return result;
     }
-    
+
     private PatternLayout createPatternLayout() {
         PatternLayout layout = new PatternLayout();
         // Set encoder pattern

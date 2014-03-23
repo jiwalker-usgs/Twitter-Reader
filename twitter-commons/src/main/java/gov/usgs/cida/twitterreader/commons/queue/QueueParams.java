@@ -8,11 +8,13 @@ import java.util.concurrent.TimeUnit;
  * @author isuftin
  */
 public class QueueParams {
+
     private Long initialDelay;
     private Long period;
     private TimeUnit timeUnit;
-    
-    private QueueParams(){}
+
+    private QueueParams() {
+    }
 
     /**
      * @param initialDelay the time to delay first execution
@@ -25,8 +27,6 @@ public class QueueParams {
         this.timeUnit = timeUnit;
     }
 
-
-    
     /**
      * @return the initialDelay
      */
