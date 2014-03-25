@@ -26,8 +26,8 @@ public class TwitterQueues {
     private final static ScheduledExecutorService messageSes;
     private static ScheduledFuture<TwitterEventRunner> eventFuture = null;
     private static ScheduledFuture<TwitterMessageRunner> messageFuture = null;
-    private QueueParams eventQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
-    private QueueParams messageQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
+    private static QueueParams eventQueueParams;
+    private static QueueParams messageQueueParams;
 
     static {
         messageQueue = new LinkedBlockingQueue<>(100000);
@@ -35,14 +35,16 @@ public class TwitterQueues {
         eventSes = Executors.newScheduledThreadPool(1);
         messageSes = Executors.newScheduledThreadPool(1);
         eventBus = new EventBus("Twitter-Eventbus");
+        eventQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
+        messageQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
     }
 
     /**
      * Starts both event and message queueing
      */
     public void startQueueing() {
-        startMessageQueueing(messageQueueParams);
-        startEventQueueing(eventQueueParams);
+        startMessageQueueing(getMessageQueueParams());
+        startEventQueueing(getEventQueueParams());
     }
 
     /**
@@ -58,7 +60,7 @@ public class TwitterQueues {
      * and run time
      */
     public void startMessageQueueing() {
-        startMessageQueueing(messageQueueParams);
+        startMessageQueueing(getMessageQueueParams());
     }
 
     /**
@@ -66,7 +68,7 @@ public class TwitterQueues {
      * and run time
      */
     public void startEventQueueing() {
-        startEventQueueing(eventQueueParams);
+        startEventQueueing(getEventQueueParams());
     }
 
     /**
@@ -92,9 +94,7 @@ public class TwitterQueues {
     /**
      * Starts message queuing for the Twitter client
      *
-     * @param initialDelay the time to delay first execution
-     * @param period the period between successive executions
-     * @param timeUnit the time unit of the initialDelay and period parameters
+     * @param params
      */
     public void startMessageQueueing(QueueParams params) {
         Long initialDelay = params.getInitialDelay();
@@ -109,9 +109,7 @@ public class TwitterQueues {
     /**
      * Starts event queuing for the Twitter client
      *
-     * @param initialDelay the time to delay first execution
-     * @param period the period between successive executions
-     * @param timeUnit the time unit of the initialDelay and period parameters
+     * @param params
      */
     public void startEventQueueing(QueueParams params) {
         Long initialDelay = params.getInitialDelay();
@@ -180,15 +178,15 @@ public class TwitterQueues {
     /**
      * @param params
      */
-    public void setEventQueueParams(QueueParams params) {
-        eventQueueParams = params;
+    public static void setEventQueueParams(QueueParams params) {
+        TwitterQueues.eventQueueParams = params;
     }
 
     /**
      * @param params
      */
-    public void setMessageQueueParams(QueueParams params) {
-        messageQueueParams = params;
+    public static void setMessageQueueParams(QueueParams params) {
+        TwitterQueues.messageQueueParams = params;
     }
 
     public static void registerObserver(ClientObserver observer) {
@@ -203,5 +201,19 @@ public class TwitterQueues {
         } catch (IllegalArgumentException iae) {
             logger.debug("Attempted to unregister observer that was not registered. This is usually not a problem.");
         }
+    }
+
+    /**
+     * @return the eventQueueParams
+     */
+    public static QueueParams getEventQueueParams() {
+        return TwitterQueues.eventQueueParams;
+    }
+
+    /**
+     * @return the messageQueueParams
+     */
+    public static QueueParams getMessageQueueParams() {
+        return TwitterQueues.messageQueueParams;
     }
 }

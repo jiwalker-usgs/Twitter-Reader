@@ -3,6 +3,7 @@ package gov.usgs.cida.twitterreader.commons.observer;
 import ch.qos.logback.classic.Logger;
 import com.twitter.hbc.core.event.Event;
 import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
+import java.util.Observable;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -52,6 +53,11 @@ public class LoggingEventObserver extends EventObserver {
     @Override
     public void unregister() {
         TwitterQueues.unregisterObserver(this);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

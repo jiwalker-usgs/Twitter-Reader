@@ -1,17 +1,18 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
-import gov.usgs.cida.twitter.reader.data.client.auth.OAuth;
-import gov.usgs.cida.twitter.reader.data.client.auth.IAuthType;
-import gov.usgs.cida.twitter.reader.data.client.auth.UserPasswordAuth;
 import com.google.common.collect.Lists;
-import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
+import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
+import gov.usgs.cida.twitter.reader.data.client.auth.IAuthType;
+import gov.usgs.cida.twitter.reader.data.client.auth.OAuth;
+import gov.usgs.cida.twitter.reader.data.client.auth.UserPasswordAuth;
 import gov.usgs.cida.twitterreader.commons.observer.LoggingEventObserver;
+import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
 import java.util.concurrent.TimeUnit;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 /**
  *
@@ -54,7 +55,7 @@ public class ClientBuilderTest {
         System.out.println("testBuildClient");
         ClientBuilder instance = new ClientBuilder(ssoAuth).
             setTerms(Lists.asList("term", new String[]{"test2"}));
-        IClient test = instance.build();
+        TwitterClient test = instance.build();
         assertThat(test, is(notNullValue()));
     }
 
@@ -64,10 +65,8 @@ public class ClientBuilderTest {
         ClientBuilder instance = new ClientBuilder(ssoAuth).
                 setTerms(Lists.asList("term", new String[]{"test2"})).
                 addObserver(new LoggingEventObserver());
-        IClient test = instance.build();
+        TwitterClient test = instance.build();
         assertThat(test, is(notNullValue()));
-        assertThat(test.getObservers().size(), is(1));
-        assertThat(test.getObservers().get(0), is(instanceOf(LoggingEventObserver.class)));
     }
 
     @Test
@@ -77,7 +76,7 @@ public class ClientBuilderTest {
                 setTerms(Lists.asList("term", new String[]{"test2"})).
                 setEventQueueParams(new QueueParams(0l, 0l, TimeUnit.MINUTES)).
                 setMessageQueueParams(new QueueParams(0l, 0l, TimeUnit.MINUTES));
-        IClient client = builder.build();
+        TwitterClient client = builder.build();
         assertThat(client, is(notNullValue()));
     }
 

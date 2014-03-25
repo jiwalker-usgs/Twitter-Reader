@@ -2,8 +2,10 @@ package gov.usgs.cida.twitter.reader.data.client;
 
 import com.twitter.hbc.core.endpoint.Location;
 import com.twitter.hbc.httpclient.auth.Authentication;
+import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents the context used in building the client
@@ -16,6 +18,8 @@ public class TwitterClientContext {
     private List<Long> userIds = new ArrayList<>();
     private List<String> terms = new ArrayList<>();
     private List<Location> locations = new ArrayList<>();
+    private QueueParams eventQueueParams = new QueueParams(0l, 0l, TimeUnit.MINUTES);
+    private QueueParams messageQueueParams = new QueueParams(0l, 0l, TimeUnit.MINUTES);
 
     private TwitterClientContext() {
     }
@@ -77,6 +81,34 @@ public class TwitterClientContext {
         if (locations != null) {
             this.locations = new ArrayList<>(locations);
         }
+    }
+
+    /**
+     * @return the eventQueueParams
+     */
+    public QueueParams getEventQueueParams() {
+        return eventQueueParams;
+    }
+
+    /**
+     * @param eventQueueParams the eventQueueParams to set
+     */
+    public void setEventQueueParams(QueueParams eventQueueParams) {
+        this.eventQueueParams = eventQueueParams;
+    }
+
+    /**
+     * @return the messageQueueParams
+     */
+    public QueueParams getMessageQueueParams() {
+        return messageQueueParams;
+    }
+
+    /**
+     * @param messageQueueParams the messageQueueParams to set
+     */
+    public void setMessageQueueParams(QueueParams messageQueueParams) {
+        this.messageQueueParams = messageQueueParams;
     }
 
     boolean isEmpty() {

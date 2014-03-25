@@ -53,7 +53,7 @@ public class TwitterClientBuilder {
         endpoint.followings(context.getUserIds());
         endpoint.trackTerms(context.getTerms());
         endpoint.locations(context.getLocations());
-
+        
         ClientBuilder cb = new ClientBuilder().
                 name("Twitter-Client").
                 hosts(Constants.SITESTREAM_HOST).

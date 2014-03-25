@@ -1,12 +1,13 @@
 package gov.usgs.cida.twitterreader.commons.observer.interfaces;
 
 import com.twitter.hbc.core.event.Event;
+import java.util.Observer;
 
 /**
  *
  * @author isuftin
  */
-public interface IClientObserver {
+public interface IClientObserver extends Observer {
 
     /**
      * Handles a new incoming event

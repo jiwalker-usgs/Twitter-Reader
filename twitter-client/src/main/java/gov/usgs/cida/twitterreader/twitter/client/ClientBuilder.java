@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class ClientBuilder {
 
     private IAuthType authType = null;
-    private IClient client;
+    private TwitterClient client;
     private QueueParams eventQueueParams = new QueueParams(0l, 0l, TimeUnit.MINUTES);
     private QueueParams messageQueueParams = new QueueParams(0l, 0l, TimeUnit.MINUTES);
     private final List<IClientObserver> clientObservers = new ArrayList<>();
@@ -38,29 +38,24 @@ public class ClientBuilder {
         this.authType = authType;
     }
 
-    public IClient build() {
+    public TwitterClient build() {
         if (client == null) {
             TwitterClientBuilder twitterClientBuilder = new TwitterClientBuilder();
-            Authentication auth = authType.createAuthentication();
             
-            TwitterClientContext context = new TwitterClientContext(auth);
+            TwitterClientContext context = new TwitterClientContext(authType.createAuthentication());
             context.setUserIds(userIds);
             context.setTerms(terms);
             context.setLocations(locations);
+            context.setEventQueueParams(this.eventQueueParams);
+            context.setMessageQueueParams(this.messageQueueParams);
             
             twitterClientBuilder.setContext(context);
             
-            TwitterClient twitterClient = twitterClientBuilder.build();
-            client = new ClientImpl(twitterClient);
+            client = twitterClientBuilder.build();
             
             for (IClientObserver clientObserver : clientObservers) {
-                client.addObserver(clientObserver).register();
-            }
-            if (this.messageQueueParams != null) {
-                client.setMessageQueueParams(this.messageQueueParams);
-            }
-            if (this.eventQueueParams != null) {
-                client.setEventQueueParams(this.eventQueueParams);
+                client.addObserver(clientObserver);
+                clientObserver.register();
             }
         }
         return client;

@@ -40,7 +40,7 @@ public class ClientLauncher {
     private String propertiesFiles = null;
     private File logDirectory = null;
     private final Properties properties = new Properties();
-    private static IClient client;
+    private static TwitterClient client;
     private String oauthConsumerKey;
     private String oauthConsumerSecret;
     private String oauthToken;
@@ -160,7 +160,7 @@ public class ClientLauncher {
         parser.printUsage(stream);
     }
 
-    public IClient buildClient(String... args) throws FileNotFoundException, IOException, CmdLineException {
+    public TwitterClient buildClient(String... args) throws FileNotFoundException, IOException, CmdLineException {
         // Process the flags coming in on the command line 
         processCommandLine(args);
 
@@ -291,7 +291,7 @@ public class ClientLauncher {
         }
     }
     
-    public IClient getClient() {
+    public TwitterClient getClient() {
         return client;
     }
 

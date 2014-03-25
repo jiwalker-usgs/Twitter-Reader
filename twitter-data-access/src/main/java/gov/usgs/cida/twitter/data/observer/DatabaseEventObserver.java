@@ -5,9 +5,9 @@ import com.twitter.hbc.core.event.Event;
 import gov.usgs.cida.twitter.data.dao.TwitterEventDAO;
 import gov.usgs.cida.twitter.data.model.TwitterEvent;
 import gov.usgs.cida.twitter.data.model.TwitterEventType;
-import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
 import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
 import gov.usgs.cida.twitterreader.commons.observer.EventObserver;
+import java.util.Observable;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +58,11 @@ public class DatabaseEventObserver extends EventObserver {
     @Override
     public void unregister() {
         TwitterQueues.unregisterObserver(this);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
