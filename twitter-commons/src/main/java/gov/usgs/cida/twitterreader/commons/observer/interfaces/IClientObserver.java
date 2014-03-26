@@ -7,7 +7,7 @@ import java.util.Observer;
  *
  * @author isuftin
  */
-public interface IClientObserver extends Observer {
+public interface IClientObserver {
 
     /**
      * Handles a new incoming event

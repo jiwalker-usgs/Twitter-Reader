@@ -15,13 +15,16 @@ public class ClientMain {
 
     private static ClientLauncher launcher;
     private static TwitterClient client;
-    
+
     /**
+     * Launches a TwitterClient instance using commandline-provided flags
      * @param args the command line arguments
      * @throws java.io.FileNotFoundException
+     * @throws org.kohsuke.args4j.CmdLineException
      */
     public static void main(String[] args) throws FileNotFoundException, IOException, CmdLineException {
         launcher = new ClientLauncher();
         client = launcher.buildClient(args);
+        client.start();
     }
 }

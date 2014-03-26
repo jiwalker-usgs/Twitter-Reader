@@ -125,11 +125,11 @@ public class ClientLauncher {
             }
         }
     }
-    
+
     @Option(name = "--track.locations",
             usage = "Comma separated set of list of doubles per location in the "
-                    + "format of (southwest-lon,southwest-lat,northeast-lon,northeast-lat). "
-                    + "Sets are separated by pipe (|) character. Example: \"1.00,2.00,3.00,4.00|2.00,3.00,4.00,5.00\"",
+            + "format of (southwest-lon,southwest-lat,northeast-lon,northeast-lat). "
+            + "Sets are separated by pipe (|) character. Example: \"1.00,2.00,3.00,4.00|2.00,3.00,4.00,5.00\"",
             metaVar = "Double,Double,Double,Double")
     public void setLocations(String locationList) {
         String[] incomingLocations = locationList.split("\\|");
@@ -138,15 +138,15 @@ public class ClientLauncher {
             if (locationStringArray.length != 4) {
                 throw new IllegalArgumentException("track.locations elements must be in the format of southwest-lon,southwest-lat,northeast-lon,northeast-lat");
             }
-            
+
             try {
                 Double swLon = Double.parseDouble(locationStringArray[0].trim());
                 Double swLat = Double.parseDouble(locationStringArray[1].trim());
                 Double neLon = Double.parseDouble(locationStringArray[2].trim());
                 Double neLat = Double.parseDouble(locationStringArray[3].trim());
-                Location.Coordinate swCoord = new Location.Coordinate(swLon,swLat);
-                Location.Coordinate neCoord = new Location.Coordinate(neLon,neLat);
-                Location location = new Location(swCoord,neCoord);
+                Location.Coordinate swCoord = new Location.Coordinate(swLon, swLat);
+                Location.Coordinate neCoord = new Location.Coordinate(neLon, neLat);
+                Location location = new Location(swCoord, neCoord);
                 locations.add(location);
             } catch (NumberFormatException nfe) {
                 packageLogger.debug(String.format("Could not convert location element to Double"));
@@ -173,7 +173,7 @@ public class ClientLauncher {
                     .setLocations(locations);
             client = clientBuilder.build();
         }
-        
+
         return client;
     }
 
@@ -274,7 +274,7 @@ public class ClientLauncher {
         if (properties.containsKey("track.terms")) {
             this.setTerms(properties.getProperty("track.terms"));
         }
-        
+
         if (properties.containsKey("track.locations")) {
             this.setLocations(properties.getProperty("track.locations"));
         }
@@ -290,7 +290,7 @@ public class ClientLauncher {
             Files.createDirectory(logDirectory.toPath());
         }
     }
-    
+
     public TwitterClient getClient() {
         return client;
     }
