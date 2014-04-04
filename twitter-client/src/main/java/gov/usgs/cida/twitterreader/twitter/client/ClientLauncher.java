@@ -160,7 +160,7 @@ public class ClientLauncher {
         parser.printUsage(stream);
     }
 
-    public TwitterClient buildClient(String... args) throws FileNotFoundException, IOException, CmdLineException {
+    public TwitterClient buildClient(String... args) throws IOException, CmdLineException {
         // Process the flags coming in on the command line 
         processCommandLine(args);
 
@@ -177,7 +177,7 @@ public class ClientLauncher {
         return client;
     }
 
-    private void processCommandLine(String[] args) throws FileNotFoundException, IOException, CmdLineException {
+    private void processCommandLine(String[] args) throws IOException, CmdLineException {
         parser = new CmdLineParser(this);
         parser.setUsageWidth(80);
         try {

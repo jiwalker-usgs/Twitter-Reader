@@ -1,7 +1,6 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
 import com.twitter.hbc.core.endpoint.Location;
-import com.twitter.hbc.httpclient.auth.Authentication;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClientContext;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClientBuilder;
