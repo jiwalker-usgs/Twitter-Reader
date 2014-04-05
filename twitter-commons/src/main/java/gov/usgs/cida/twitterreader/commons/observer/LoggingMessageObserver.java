@@ -2,6 +2,7 @@ package gov.usgs.cida.twitterreader.commons.observer;
 
 import ch.qos.logback.classic.Logger;
 import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
+import java.util.Observable;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -52,5 +53,4 @@ public class LoggingMessageObserver extends MessageObserver {
     public void unregister() {
         TwitterQueues.unregisterObserver(this);
     }
-
 }

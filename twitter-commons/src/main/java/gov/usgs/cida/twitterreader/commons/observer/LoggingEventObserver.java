@@ -3,6 +3,7 @@ package gov.usgs.cida.twitterreader.commons.observer;
 import ch.qos.logback.classic.Logger;
 import com.twitter.hbc.core.event.Event;
 import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
+import java.util.Observable;
 import org.slf4j.LoggerFactory;
 
 /**

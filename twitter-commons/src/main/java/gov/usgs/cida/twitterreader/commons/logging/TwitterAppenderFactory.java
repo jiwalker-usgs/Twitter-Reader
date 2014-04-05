@@ -1,6 +1,5 @@
 package gov.usgs.cida.twitterreader.commons.logging;
 
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -11,7 +10,6 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import java.io.File;
 import java.io.IOException;
-import org.slf4j.LoggerFactory;
 
 /**
  * Used to programmatically create Logback Appender instances

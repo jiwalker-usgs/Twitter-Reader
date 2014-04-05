@@ -1,5 +1,6 @@
 package gov.usgs.cida.twitter.reader.data.client;
 
+import ch.qos.logback.classic.Logger;
 import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
@@ -25,7 +26,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
  */
 public class TwitterClientBuilder {
 
-    private ClientContext context = null;
+    private TwitterClientContext context = null;
 
     public TwitterClient build() {
         TwitterClient client;
@@ -36,8 +37,13 @@ public class TwitterClientBuilder {
         }
 
         coreClient = createCoreClient();
-        client = new TwitterClient(coreClient);
-
+        
+        if (context.getLogger() != null) {
+            client = new TwitterClient(coreClient, context.getLogger());
+        } else {
+            client = new TwitterClient(coreClient);
+        }
+        
         return client;
     }
 
@@ -53,7 +59,7 @@ public class TwitterClientBuilder {
         endpoint.followings(context.getUserIds());
         endpoint.trackTerms(context.getTerms());
         endpoint.locations(context.getLocations());
-
+        
         ClientBuilder cb = new ClientBuilder().
                 name("Twitter-Client").
                 hosts(Constants.SITESTREAM_HOST).
@@ -70,7 +76,7 @@ public class TwitterClientBuilder {
      * @param context the context to set
      * @return
      */
-    public TwitterClientBuilder setContext(ClientContext context) {
+    public TwitterClientBuilder setContext(TwitterClientContext context) {
         this.context = context;
         return this;
     }

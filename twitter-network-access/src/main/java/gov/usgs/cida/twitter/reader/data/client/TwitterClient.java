@@ -1,29 +1,36 @@
 package gov.usgs.cida.twitter.reader.data.client;
 
-import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
 import ch.qos.logback.classic.Logger;
-import com.twitter.hbc.core.Client;
-import java.util.Observable;
 import org.slf4j.LoggerFactory;
+import com.twitter.hbc.core.Client;
+import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
+import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
+
 
 /**
  * A client to asynchronously pull messages from CIDA's Twitter queue
  *
  * @author isuftin
  */
-public class TwitterClient extends Observable {
+public class TwitterClient {
 
-    private final static Logger logger = (Logger) LoggerFactory.getLogger(TwitterClient.class);
-    private final TwitterQueues queues = new TwitterQueues();
+    private Logger logger;
+    private final TwitterQueues queues;
     private static Client client = null;
     private static Boolean isConnected = false;
     private static Boolean isStopped = false;
 
     TwitterClient(Client client) {
+        this(client, (Logger) LoggerFactory.getLogger(TwitterClient.class));
+    }
+    
+    TwitterClient(Client client, Logger logger) {
         TwitterClient.client = client;
+        this.logger = logger;
+        queues =  new TwitterQueues(this.logger);
         logger.debug("New Twitter client created");
     }
-
+    
     /**
      * Connects the Twitter client to Twitter
      */
@@ -79,6 +86,10 @@ public class TwitterClient extends Observable {
         } finally {
             super.finalize();
         }
+    }
+    
+    public void addObserver(IClientObserver observer) {
+        TwitterQueues.registerObserver(observer);
     }
 
     public static boolean isStopped() {

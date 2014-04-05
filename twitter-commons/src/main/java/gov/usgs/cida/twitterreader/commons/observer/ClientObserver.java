@@ -21,9 +21,19 @@ public abstract class ClientObserver implements IClientObserver {
     @Override
     public abstract void unregister();
 
+    /**
+     * Handle an incoming Event object
+     *
+     * @param eventObject
+     */
     @Override
     public abstract void handleEvent(Event eventObject);
 
+    /**
+     * Handle an incoming Message
+     *
+     * @param messageObject
+     */
     @Override
     public abstract void handleEvent(String messageObject);
 

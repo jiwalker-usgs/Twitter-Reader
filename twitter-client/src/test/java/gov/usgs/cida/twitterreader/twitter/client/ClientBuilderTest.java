@@ -1,14 +1,18 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
 import com.google.common.collect.Lists;
-import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
+import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
+import gov.usgs.cida.twitter.reader.data.client.auth.IAuthType;
+import gov.usgs.cida.twitter.reader.data.client.auth.OAuth;
+import gov.usgs.cida.twitter.reader.data.client.auth.UserPasswordAuth;
 import gov.usgs.cida.twitterreader.commons.observer.LoggingEventObserver;
+import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
 import java.util.concurrent.TimeUnit;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 /**
  *
@@ -16,16 +20,16 @@ import static org.hamcrest.Matchers.*;
  */
 public class ClientBuilderTest {
 
-    private IAuthTypeClientBuilder userPassBuilder;
-    private IAuthTypeClientBuilder ssoBuilder;
+    private IAuthType userPassAuth;
+    private IAuthType ssoAuth;
 
     public ClientBuilderTest() {
     }
 
     @Before
     public void setUp() {
-        userPassBuilder = new UserPasswordClientBuilder("test", "test");
-        ssoBuilder = new SingleSignonClientBuilder("consumerKeyHere", "consumerSecretHere", "tokenHere", "secretHere");
+        userPassAuth = new UserPasswordAuth("test", "test");
+        ssoAuth = new OAuth("consumerKeyHere", "consumerSecretHere", "tokenHere", "secretHere");
     }
 
     @After
@@ -33,48 +37,46 @@ public class ClientBuilderTest {
     }
 
     @Test
-    public void testAddSingleSignonConnector() {
-        System.out.println("testAddSingleSignonConnector");
-        ClientBuilder instance = new ClientBuilder(ssoBuilder);
+    public void testInitializationUsingSingleSignonAuth() {
+        System.out.println("testInitializationUsingSingleSignonAuth");
+        ClientBuilder instance = new ClientBuilder(ssoAuth);
         assertThat(instance, is(notNullValue()));
     }
 
     @Test
-    public void testAddUserPasswordConnector() {
-        System.out.println("testAddUserPasswordConnector");
-        ClientBuilder instance = new ClientBuilder(userPassBuilder);
+    public void testInitializationUsingUserAndPasswordAuth() {
+        System.out.println("testInitializationUsingUserAndPasswordAuth");
+        ClientBuilder instance = new ClientBuilder(userPassAuth);
         assertThat(instance, is(notNullValue()));
     }
 
     @Test
-    public void testBuild() {
-        System.out.println("testBuild");
-        ssoBuilder.setTerms(Lists.asList("term", new String[]{"test2"}));
-        ClientBuilder instance = new ClientBuilder(ssoBuilder);
-        IClient test = instance.build();
+    public void testBuildClient() {
+        System.out.println("testBuildClient");
+        ClientBuilder instance = new ClientBuilder(ssoAuth).
+            setTerms(Lists.asList("term", new String[]{"test2"}));
+        TwitterClient test = instance.build();
         assertThat(test, is(notNullValue()));
     }
 
     @Test
     public void testBuildWithObservers() {
         System.out.println("testBuildWithObservers");
-        ssoBuilder.setTerms(Lists.asList("term", new String[]{"test2"}));
-        ClientBuilder instance = new ClientBuilder(ssoBuilder)
-                .addClientObserver(new LoggingEventObserver());
-        IClient test = instance.build();
+        ClientBuilder instance = new ClientBuilder(ssoAuth).
+                setTerms(Lists.asList("term", new String[]{"test2"})).
+                addObserver(new LoggingEventObserver());
+        TwitterClient test = instance.build();
         assertThat(test, is(notNullValue()));
-        assertThat(test.getObservers().size(), is(1));
-        assertThat(test.getObservers().get(0), is(instanceOf(LoggingEventObserver.class)));
     }
 
     @Test
     public void testBuildWithQueueParams() {
         System.out.println("testBuildWithQueueParams");
-        ssoBuilder.setTerms(Lists.asList("term", new String[]{"test2"}));
-        ClientBuilder builder = new ClientBuilder(ssoBuilder);
-        builder.setEventQueueParams(new QueueParams(0l, 0l, TimeUnit.MINUTES));
-        builder.setMessageQueueParams(new QueueParams(0l, 0l, TimeUnit.MINUTES));
-        IClient client = builder.build();
+        ClientBuilder builder = new ClientBuilder(ssoAuth).
+                setTerms(Lists.asList("term", new String[]{"test2"})).
+                setEventQueueParams(new QueueParams(0l, 0l, TimeUnit.MINUTES)).
+                setMessageQueueParams(new QueueParams(0l, 0l, TimeUnit.MINUTES));
+        TwitterClient client = builder.build();
         assertThat(client, is(notNullValue()));
     }
 

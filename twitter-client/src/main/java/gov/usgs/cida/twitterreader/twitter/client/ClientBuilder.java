@@ -1,10 +1,16 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
-import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
+import ch.qos.logback.classic.Logger;
+import com.twitter.hbc.core.endpoint.Location;
+import gov.usgs.cida.twitter.reader.data.client.TwitterClientContext;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
+import gov.usgs.cida.twitter.reader.data.client.TwitterClientBuilder;
+import gov.usgs.cida.twitter.reader.data.client.auth.IAuthType;
 import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
+import gov.usgs.cida.twitterreader.commons.queue.QueueParams;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Builder class to help create clients
@@ -12,33 +18,51 @@ import java.util.List;
  * @author isuftin
  */
 public class ClientBuilder {
-
-    private TwitterClient twitterClient = null;
-    private IAuthTypeClientBuilder builder = null;
-    private IClient client;
-    private QueueParams eventQueueParams = null;
-    private QueueParams messageQueueParams = null;
+    private Logger logger;
+    private IAuthType authType = null;
+    private TwitterClient client;
+    private QueueParams eventQueueParams = new QueueParams(0l, 0l, TimeUnit.MINUTES);
+    private QueueParams messageQueueParams = new QueueParams(0l, 0l, TimeUnit.MINUTES);
     private final List<IClientObserver> clientObservers = new ArrayList<>();
+    private List<Long> userIds;
+    private List<String> terms;
+    private List<Location> locations;
 
     private ClientBuilder() {
     }
 
-    public ClientBuilder(IAuthTypeClientBuilder builder) {
-        if (builder == null) {
+    public ClientBuilder(IAuthType authType) {
+        if (authType == null) {
             throw new NullPointerException("IAuthTypeClientBuilder cannot be null");
         }
-        this.builder = builder;
+        this.authType = authType;
     }
 
-    public ClientBuilder setBuilder(IAuthTypeClientBuilder builder) {
-        if (builder != null) {
-            this.builder = builder;
+    public TwitterClient build() {
+        if (client == null) {
+            TwitterClientBuilder twitterClientBuilder = new TwitterClientBuilder();
+            
+            TwitterClientContext context = new TwitterClientContext(authType.createAuthentication());
+            context.setUserIds(userIds);
+            context.setTerms(terms);
+            context.setLocations(locations);
+            context.setEventQueueParams(this.eventQueueParams);
+            context.setMessageQueueParams(this.messageQueueParams);
+            context.setLogger(logger);
+            
+            twitterClientBuilder.setContext(context);
+            
+            client = twitterClientBuilder.build();
+            
+            for (IClientObserver clientObserver : clientObservers) {
+                client.addObserver(clientObserver);
+                clientObserver.register();
+            }
         }
-
-        return this;
+        return client;
     }
 
-    public ClientBuilder addClientObserver(IClientObserver clientObserver) {
+    public ClientBuilder addObserver(IClientObserver clientObserver) {
         if (clientObserver != null) {
             clientObservers.add(clientObserver);
         }
@@ -55,20 +79,35 @@ public class ClientBuilder {
         return this;
     }
 
-    public IClient build() {
-        if (client == null) {
-            twitterClient = builder.buildTwitterClient();
-            client = new ClientImpl(twitterClient);
-            for (IClientObserver clientObserver : clientObservers) {
-                client.addObserver(clientObserver).register();
-            }
-            if (this.messageQueueParams != null) {
-                client.setMessageQueueParams(this.messageQueueParams);
-            }
-            if (this.eventQueueParams != null) {
-                client.setEventQueueParams(this.eventQueueParams);
-            }
-        }
-        return client;
+    /**
+     * @param userIds the userIds to set
+     * @return 
+     */
+    public ClientBuilder setUserIds(List<Long> userIds) {
+        this.userIds = new ArrayList<>(userIds);
+        return this;
+    }
+
+    /**
+     * @param terms the terms to set
+     * @return 
+     */
+    public ClientBuilder setTerms(List<String> terms) {
+        this.terms = new ArrayList<>(terms);
+        return this;
+    }
+
+    /**
+     * @param locations the locations to set
+     * @return 
+     */
+    public ClientBuilder setLocations(List<Location> locations) {
+        this.locations = new ArrayList<>(locations);
+        return this;
+    }
+
+    public ClientBuilder setLogger(Logger logger) {
+       this.logger = logger;
+       return this;
     }
 }

@@ -3,7 +3,7 @@ package gov.usgs.cida.twitterreader.commons.queue;
 import ch.qos.logback.classic.Logger;
 import com.google.common.eventbus.EventBus;
 import com.twitter.hbc.core.event.Event;
-import gov.usgs.cida.twitterreader.commons.observer.ClientObserver;
+import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TwitterQueues {
 
-    private final static Logger logger = (Logger) LoggerFactory.getLogger(TwitterQueues.class);
+    private static Logger logger;
     private final static EventBus eventBus;
     private final static BlockingQueue<String> messageQueue;
     private final static BlockingQueue<Event> eventQueue;
@@ -26,8 +26,8 @@ public class TwitterQueues {
     private final static ScheduledExecutorService messageSes;
     private static ScheduledFuture<TwitterEventRunner> eventFuture = null;
     private static ScheduledFuture<TwitterMessageRunner> messageFuture = null;
-    private QueueParams eventQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
-    private QueueParams messageQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
+    private static QueueParams eventQueueParams;
+    private static QueueParams messageQueueParams;
 
     static {
         messageQueue = new LinkedBlockingQueue<>(100000);
@@ -35,14 +35,24 @@ public class TwitterQueues {
         eventSes = Executors.newScheduledThreadPool(1);
         messageSes = Executors.newScheduledThreadPool(1);
         eventBus = new EventBus("Twitter-Eventbus");
+        eventQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
+        messageQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
+    }
+
+    public TwitterQueues(Logger logger) {
+        if (logger == null) {
+            TwitterQueues.logger = (Logger) LoggerFactory.getLogger(TwitterQueues.class);
+        } else {
+            TwitterQueues.logger = logger;
+        }
     }
 
     /**
      * Starts both event and message queueing
      */
     public void startQueueing() {
-        startMessageQueueing(messageQueueParams);
-        startEventQueueing(eventQueueParams);
+        startMessageQueueing(getMessageQueueParams());
+        startEventQueueing(getEventQueueParams());
     }
 
     /**
@@ -58,7 +68,7 @@ public class TwitterQueues {
      * and run time
      */
     public void startMessageQueueing() {
-        startMessageQueueing(messageQueueParams);
+        startMessageQueueing(getMessageQueueParams());
     }
 
     /**
@@ -66,7 +76,7 @@ public class TwitterQueues {
      * and run time
      */
     public void startEventQueueing() {
-        startEventQueueing(eventQueueParams);
+        startEventQueueing(getEventQueueParams());
     }
 
     /**
@@ -92,16 +102,14 @@ public class TwitterQueues {
     /**
      * Starts message queuing for the Twitter client
      *
-     * @param initialDelay the time to delay first execution
-     * @param period the period between successive executions
-     * @param timeUnit the time unit of the initialDelay and period parameters
+     * @param params
      */
     public void startMessageQueueing(QueueParams params) {
         Long initialDelay = params.getInitialDelay();
         Long period = params.getPeriod();
         TimeUnit timeUnit = params.getTimeUnit();
-        if (null == messageFuture || messageFuture.isDone() || messageFuture.isCancelled()) {
-            messageFuture = (ScheduledFuture<TwitterMessageRunner>) messageSes.scheduleAtFixedRate(new TwitterMessageRunner(), initialDelay, period, timeUnit);
+        if (null == TwitterQueues.messageFuture || TwitterQueues.messageFuture.isDone() || TwitterQueues.messageFuture.isCancelled()) {
+            TwitterQueues.messageFuture = (ScheduledFuture<TwitterMessageRunner>) messageSes.scheduleAtFixedRate(new TwitterMessageRunner(logger), initialDelay, period, timeUnit);
             logger.info("Message queueing started");
         }
     }
@@ -109,16 +117,14 @@ public class TwitterQueues {
     /**
      * Starts event queuing for the Twitter client
      *
-     * @param initialDelay the time to delay first execution
-     * @param period the period between successive executions
-     * @param timeUnit the time unit of the initialDelay and period parameters
+     * @param params
      */
     public void startEventQueueing(QueueParams params) {
         Long initialDelay = params.getInitialDelay();
         Long period = params.getPeriod();
         TimeUnit timeUnit = params.getTimeUnit();
-        if (null == eventFuture || eventFuture.isDone() || eventFuture.isCancelled()) {
-            eventFuture = (ScheduledFuture<TwitterEventRunner>) eventSes.scheduleAtFixedRate(new TwitterEventRunner(), initialDelay, period, timeUnit);
+        if (null == TwitterQueues.eventFuture || TwitterQueues.eventFuture.isDone() || TwitterQueues.eventFuture.isCancelled()) {
+            TwitterQueues.eventFuture = (ScheduledFuture<TwitterEventRunner>) eventSes.scheduleAtFixedRate(new TwitterEventRunner(logger), initialDelay, period, timeUnit);
             logger.info("Event queueing started");
         }
     }
@@ -129,7 +135,15 @@ public class TwitterQueues {
      */
     private static class TwitterMessageRunner implements Runnable {
 
-        private final static Logger RUNNER_LOGGER = (Logger) LoggerFactory.getLogger(TwitterMessageRunner.class);
+        private static Logger RUNNER_LOGGER;
+
+        public TwitterMessageRunner() {
+            TwitterMessageRunner.RUNNER_LOGGER = (Logger) LoggerFactory.getLogger(TwitterMessageRunner.class);
+        }
+
+        public TwitterMessageRunner(Logger logger) {
+            TwitterMessageRunner.RUNNER_LOGGER = logger;
+        }
 
         @Override
         public void run() {
@@ -152,7 +166,15 @@ public class TwitterQueues {
      */
     private static class TwitterEventRunner implements Runnable {
 
-        private final static Logger RUNNER_LOGGER = (Logger) LoggerFactory.getLogger(TwitterEventRunner.class);
+        private static Logger RUNNER_LOGGER;
+
+        public TwitterEventRunner() {
+            TwitterEventRunner.RUNNER_LOGGER = (Logger) LoggerFactory.getLogger(TwitterEventRunner.class);
+        }
+
+        public TwitterEventRunner(Logger logger) {
+            TwitterEventRunner.RUNNER_LOGGER = logger;
+        }
 
         @Override
         public void run() {
@@ -180,28 +202,42 @@ public class TwitterQueues {
     /**
      * @param params
      */
-    public void setEventQueueParams(QueueParams params) {
-        eventQueueParams = params;
+    public static void setEventQueueParams(QueueParams params) {
+        TwitterQueues.eventQueueParams = params;
     }
 
     /**
      * @param params
      */
-    public void setMessageQueueParams(QueueParams params) {
-        messageQueueParams = params;
+    public static void setMessageQueueParams(QueueParams params) {
+        TwitterQueues.messageQueueParams = params;
     }
 
-    public static void registerObserver(ClientObserver observer) {
+    public static void registerObserver(IClientObserver observer) {
         // Try to unregister observer. If not registered, no biggie
         unregisterObserver(observer);
         eventBus.register(observer);
     }
 
-    public static void unregisterObserver(ClientObserver observer) {
+    public static void unregisterObserver(IClientObserver observer) {
         try {
             eventBus.unregister(observer);
         } catch (IllegalArgumentException iae) {
             logger.debug("Attempted to unregister observer that was not registered. This is usually not a problem.");
         }
+    }
+
+    /**
+     * @return the eventQueueParams
+     */
+    public static QueueParams getEventQueueParams() {
+        return TwitterQueues.eventQueueParams;
+    }
+
+    /**
+     * @return the messageQueueParams
+     */
+    public static QueueParams getMessageQueueParams() {
+        return TwitterQueues.messageQueueParams;
     }
 }
