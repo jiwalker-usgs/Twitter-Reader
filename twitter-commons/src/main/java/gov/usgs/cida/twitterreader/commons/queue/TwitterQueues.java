@@ -3,7 +3,6 @@ package gov.usgs.cida.twitterreader.commons.queue;
 import ch.qos.logback.classic.Logger;
 import com.google.common.eventbus.EventBus;
 import com.twitter.hbc.core.event.Event;
-import gov.usgs.cida.twitterreader.commons.observer.ClientObserver;
 import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -19,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TwitterQueues {
 
-    private final static Logger logger = (Logger) LoggerFactory.getLogger(TwitterQueues.class);
+    private static Logger logger;
     private final static EventBus eventBus;
     private final static BlockingQueue<String> messageQueue;
     private final static BlockingQueue<Event> eventQueue;
@@ -38,6 +37,14 @@ public class TwitterQueues {
         eventBus = new EventBus("Twitter-Eventbus");
         eventQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
         messageQueueParams = new QueueParams(0l, 1l, TimeUnit.MINUTES);
+    }
+
+    public TwitterQueues(Logger logger) {
+        if (logger == null) {
+            TwitterQueues.logger = (Logger) LoggerFactory.getLogger(TwitterQueues.class);
+        } else {
+            TwitterQueues.logger = logger;
+        }
     }
 
     /**
@@ -102,7 +109,7 @@ public class TwitterQueues {
         Long period = params.getPeriod();
         TimeUnit timeUnit = params.getTimeUnit();
         if (null == TwitterQueues.messageFuture || TwitterQueues.messageFuture.isDone() || TwitterQueues.messageFuture.isCancelled()) {
-            TwitterQueues.messageFuture = (ScheduledFuture<TwitterMessageRunner>) messageSes.scheduleAtFixedRate(new TwitterMessageRunner(), initialDelay, period, timeUnit);
+            TwitterQueues.messageFuture = (ScheduledFuture<TwitterMessageRunner>) messageSes.scheduleAtFixedRate(new TwitterMessageRunner(logger), initialDelay, period, timeUnit);
             logger.info("Message queueing started");
         }
     }
@@ -117,7 +124,7 @@ public class TwitterQueues {
         Long period = params.getPeriod();
         TimeUnit timeUnit = params.getTimeUnit();
         if (null == TwitterQueues.eventFuture || TwitterQueues.eventFuture.isDone() || TwitterQueues.eventFuture.isCancelled()) {
-            TwitterQueues.eventFuture = (ScheduledFuture<TwitterEventRunner>) eventSes.scheduleAtFixedRate(new TwitterEventRunner(), initialDelay, period, timeUnit);
+            TwitterQueues.eventFuture = (ScheduledFuture<TwitterEventRunner>) eventSes.scheduleAtFixedRate(new TwitterEventRunner(logger), initialDelay, period, timeUnit);
             logger.info("Event queueing started");
         }
     }
@@ -128,7 +135,15 @@ public class TwitterQueues {
      */
     private static class TwitterMessageRunner implements Runnable {
 
-        private final static Logger RUNNER_LOGGER = (Logger) LoggerFactory.getLogger(TwitterMessageRunner.class);
+        private static Logger RUNNER_LOGGER;
+
+        public TwitterMessageRunner() {
+            TwitterMessageRunner.RUNNER_LOGGER = (Logger) LoggerFactory.getLogger(TwitterMessageRunner.class);
+        }
+
+        public TwitterMessageRunner(Logger logger) {
+            TwitterMessageRunner.RUNNER_LOGGER = logger;
+        }
 
         @Override
         public void run() {
@@ -151,7 +166,15 @@ public class TwitterQueues {
      */
     private static class TwitterEventRunner implements Runnable {
 
-        private final static Logger RUNNER_LOGGER = (Logger) LoggerFactory.getLogger(TwitterEventRunner.class);
+        private static Logger RUNNER_LOGGER;
+
+        public TwitterEventRunner() {
+            TwitterEventRunner.RUNNER_LOGGER = (Logger) LoggerFactory.getLogger(TwitterEventRunner.class);
+        }
+
+        public TwitterEventRunner(Logger logger) {
+            TwitterEventRunner.RUNNER_LOGGER = logger;
+        }
 
         @Override
         public void run() {

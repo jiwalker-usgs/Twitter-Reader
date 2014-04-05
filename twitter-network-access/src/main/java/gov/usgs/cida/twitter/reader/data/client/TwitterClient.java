@@ -15,7 +15,7 @@ import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
 public class TwitterClient {
 
     private Logger logger;
-    private final TwitterQueues queues = new TwitterQueues();
+    private final TwitterQueues queues;
     private static Client client = null;
     private static Boolean isConnected = false;
     private static Boolean isStopped = false;
@@ -27,6 +27,7 @@ public class TwitterClient {
     TwitterClient(Client client, Logger logger) {
         TwitterClient.client = client;
         this.logger = logger;
+        queues =  new TwitterQueues(this.logger);
         logger.debug("New Twitter client created");
     }
     
