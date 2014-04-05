@@ -1,11 +1,11 @@
 package gov.usgs.cida.twitter.reader.data.client;
 
 import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
 import com.twitter.hbc.core.Client;
-import gov.usgs.cida.twitterreader.commons.observer.ClientObserver;
 import gov.usgs.cida.twitterreader.commons.observer.interfaces.IClientObserver;
 import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
-import org.slf4j.LoggerFactory;
+
 
 /**
  * A client to asynchronously pull messages from CIDA's Twitter queue
