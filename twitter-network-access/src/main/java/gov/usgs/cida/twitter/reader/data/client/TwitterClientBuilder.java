@@ -1,5 +1,6 @@
 package gov.usgs.cida.twitter.reader.data.client;
 
+import ch.qos.logback.classic.Logger;
 import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
@@ -36,8 +37,13 @@ public class TwitterClientBuilder {
         }
 
         coreClient = createCoreClient();
-        client = new TwitterClient(coreClient);
-
+        
+        if (context.getLogger() != null) {
+            client = new TwitterClient(coreClient, context.getLogger());
+        } else {
+            client = new TwitterClient(coreClient);
+        }
+        
         return client;
     }
 

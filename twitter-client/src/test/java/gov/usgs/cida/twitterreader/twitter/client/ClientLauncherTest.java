@@ -160,7 +160,7 @@ public class ClientLauncherTest {
         File[] files = logDirectory.listFiles(ff);
         assertThat(files.length, is(1));
         List<String> fileLines = FileUtils.readLines(files[0]);
-        assertThat(fileLines.isEmpty(), is(Boolean.TRUE));
+        assertThat(fileLines.isEmpty(), is(Boolean.FALSE));
     }
 
     @Test

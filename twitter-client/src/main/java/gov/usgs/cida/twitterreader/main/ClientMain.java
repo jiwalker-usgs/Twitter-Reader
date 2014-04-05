@@ -31,30 +31,32 @@ public class ClientMain {
         new ClientMain().run();
     }
 
-    
     /**
      * Waits for ctrl-c to exit out of console
-     * 
-     * @throws InterruptedException 
+     *
+     * @throws InterruptedException
      */
     public void run() throws InterruptedException {
-        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
         try {
             client = new ClientLauncher().buildClient(incomingArgs);
 
             if (client != null) {
+                Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+                
                 client.start();
-            }
-
-            while (running && !TwitterClient.isStopped()) {
-                Thread.sleep(1000);
+                
+                while (running && !TwitterClient.isStopped()) {
+                    Thread.sleep(1000);
+                }
+                
+                logger.info("Twitter Client has shut down cleanly...");
             }
 
         } catch (IllegalArgumentException | CmdLineException | IOException ex) {
             System.err.println(ex.getMessage());
         }
-        logger.info("Twitter Client has shut down cleanly...");
+
     }
 
     private class ShutdownHook extends Thread {
@@ -63,7 +65,7 @@ public class ClientMain {
         public void run() {
             logger.info("Twitter Client shutting down...");
             running = false;
-            client.stop(0);
+            client.stop(5000);
         }
     }
 

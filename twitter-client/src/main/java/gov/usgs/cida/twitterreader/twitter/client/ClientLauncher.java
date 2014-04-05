@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ClientLauncher {
 
-    private static final Logger packageLogger = (Logger) LoggerFactory.getLogger("gov.usgs.cida.twitterreader.twitter.client");
-    private static Logger logger;
+    private static final Logger logger = (Logger) LoggerFactory.getLogger("gov.usgs.cida.twitterreader");
     private static CmdLineParser parser;
     private File baseDirectory = null;
     private String propertiesFiles = null;
@@ -102,7 +101,7 @@ public class ClientLauncher {
                     idLong = Long.parseLong(userId);
                     userIds.add(idLong);
                 } catch (NumberFormatException nfe) {
-                    packageLogger.debug(String.format("Could not parse incoming userid %s", userId));
+                    logger.debug(String.format("Could not parse incoming userid %s", userId));
                 }
             }
         }
@@ -113,14 +112,9 @@ public class ClientLauncher {
             metaVar = "String")
     public void setTerms(String incomingUids) {
         if (StringUtils.isNotBlank(incomingUids)) {
-            for (String userId : incomingUids.split(",")) {
-                Long idLong;
-
-                try {
-                    idLong = Long.parseLong(userId);
-                    userIds.add(idLong);
-                } catch (NumberFormatException nfe) {
-                    packageLogger.debug(String.format("Could not parse incoming userid %s", userId));
+            for (String term : incomingUids.split(",")) {
+                if (StringUtils.isNotBlank(term)) {
+                    terms.add(term);
                 }
             }
         }
@@ -149,7 +143,7 @@ public class ClientLauncher {
                 Location location = new Location(swCoord, neCoord);
                 locations.add(location);
             } catch (NumberFormatException nfe) {
-                packageLogger.debug(String.format("Could not convert location element to Double"));
+                logger.debug(String.format("Could not convert location element to Double"));
             }
         }
     }
@@ -170,7 +164,8 @@ public class ClientLauncher {
                     .addObserver(new LoggingMessageObserver())
                     .setUserIds(userIds)
                     .setTerms(terms)
-                    .setLocations(locations);
+                    .setLocations(locations)
+                    .setLogger(logger);
             client = clientBuilder.build();
         }
 
@@ -188,18 +183,10 @@ public class ClientLauncher {
                 throw new FileNotFoundException(String.format("Directory at %s does not exist", baseDirectory.getAbsolutePath()));
             }
 
-            logger = (Logger) LoggerFactory.getLogger(ClientLauncher.class);
-
             // If a properties file exists, use that
             if (propertiesFiles != null) {
                 processPropertiesFile();
             }
-
-            // Set logging level and appenders for the package and instantiate 
-            // the logger for this class
-            Level logLevel = debugLogging ? Level.DEBUG : Level.INFO;
-            packageLogger.setLevel(logLevel);
-            logger.info("Logger Set To {}", logger.getEffectiveLevel());
 
             // If I am using file based logging, set up logging for files
             if (useLoggers) {
@@ -215,7 +202,14 @@ public class ClientLauncher {
 
                 logger.addAppender(new TwitterAppenderFactory(tlc).createAppender());
                 logger.debug("File appender added");
+                logger.debug(String.format("Will be logging to: %s", tlc.getOutputDirectory().getPath()));
             }
+
+            // Set logging level and appenders for the package and instantiate 
+            // the logger for this class
+            Level logLevel = debugLogging ? Level.DEBUG : Level.INFO;
+            logger.setLevel(logLevel);
+            logger.info("Logger Set To {}", logger.getEffectiveLevel());
 
             processedCommandline = true;
         } catch (CmdLineException ex) {

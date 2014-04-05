@@ -14,14 +14,19 @@ import gov.usgs.cida.twitterreader.commons.queue.TwitterQueues;
  */
 public class TwitterClient {
 
-    private final static Logger logger = (Logger) LoggerFactory.getLogger(TwitterClient.class);
+    private Logger logger;
     private final TwitterQueues queues = new TwitterQueues();
     private static Client client = null;
     private static Boolean isConnected = false;
     private static Boolean isStopped = false;
 
     TwitterClient(Client client) {
+        this(client, (Logger) LoggerFactory.getLogger(TwitterClient.class));
+    }
+    
+    TwitterClient(Client client, Logger logger) {
         TwitterClient.client = client;
+        this.logger = logger;
         logger.debug("New Twitter client created");
     }
     

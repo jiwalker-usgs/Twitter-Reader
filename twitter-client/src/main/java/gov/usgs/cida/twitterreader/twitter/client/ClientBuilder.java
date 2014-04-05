@@ -1,5 +1,6 @@
 package gov.usgs.cida.twitterreader.twitter.client;
 
+import ch.qos.logback.classic.Logger;
 import com.twitter.hbc.core.endpoint.Location;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClientContext;
 import gov.usgs.cida.twitter.reader.data.client.TwitterClient;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * @author isuftin
  */
 public class ClientBuilder {
-
+    private Logger logger;
     private IAuthType authType = null;
     private TwitterClient client;
     private QueueParams eventQueueParams = new QueueParams(0l, 0l, TimeUnit.MINUTES);
@@ -47,6 +48,7 @@ public class ClientBuilder {
             context.setLocations(locations);
             context.setEventQueueParams(this.eventQueueParams);
             context.setMessageQueueParams(this.messageQueueParams);
+            context.setLogger(logger);
             
             twitterClientBuilder.setContext(context);
             
@@ -102,5 +104,10 @@ public class ClientBuilder {
     public ClientBuilder setLocations(List<Location> locations) {
         this.locations = new ArrayList<>(locations);
         return this;
+    }
+
+    public ClientBuilder setLogger(Logger logger) {
+       this.logger = logger;
+       return this;
     }
 }
